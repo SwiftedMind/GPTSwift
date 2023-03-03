@@ -1,11 +1,11 @@
 import XCTest
-@testable import GPTKit
+@testable import GPTSwift
 
-final class GPTKitTests: XCTestCase {
+final class GPTSwiftTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct
         // results.
-        XCTAssertEqual(GPTKit().text, "Hello, World!")
+        XCTAssertEqual(GPTSwift().text, "Hello, World!")
     }
 }
