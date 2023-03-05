@@ -71,9 +71,9 @@ public struct ChatRequest: Codable {
     /// A chat request is the main interface to ChatGPT's API.
     public init(
         model: Model = .newest,
-        messages: [ChatMessage],
+        messages: [ChatMessage] = [],
         maximumTokens: Int? = nil,
-        temperature: Int? = nil,
+        temperature: Double? = nil,
         topP: Double? = nil,
         numberOfAnswers: Double? = nil,
         presencePenalty: Double? = nil,
