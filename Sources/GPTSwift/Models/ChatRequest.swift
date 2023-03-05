@@ -40,7 +40,7 @@ public struct ChatRequest: Codable {
     public var maximumTokens: Int?
 
     /// The temperature for the request. This determines the randomness of the response.
-    public var temperature: Int?
+    public var temperature: Double?
 
     /// An alternative way of controlling the temperature. Do not use at the same time as `temperature`.
     public var topP: Double?
