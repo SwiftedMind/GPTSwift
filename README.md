@@ -9,6 +9,8 @@ let gptSwift = GPTSwift(apiKey: "YOUR_API_KEY")
 try await gptSwift.askChatGPT("What is the answer to life, the universe and everything in it?")
 ```
 
+An example project can be found here: [GPTPlayground](https://github.com/SwiftedMind/GPTPlayground/tree/main)
+
 ## Content
 
 - [Getting Started](#getting-started)
