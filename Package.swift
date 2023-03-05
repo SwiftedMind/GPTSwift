@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "GPTSwift",
-    platforms: [.iOS(.v15), .macOS(.v12)],
+    platforms: [.iOS(.v13), .macOS(.v10_15)],
     products: [
         .library(
             name: "GPTSwift",
@@ -19,9 +19,6 @@ let package = Package(
             name: "GPTSwift",
             dependencies: [
                 .product(name: "Get", package: "Get")
-            ]),
-        .testTarget(
-            name: "GPTSwiftTests",
-            dependencies: ["GPTSwift"]),
+            ])
     ]
 )
