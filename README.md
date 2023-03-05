@@ -5,6 +5,7 @@ GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is co
 Using GPTSwift is easy:
 
 ```swift
+let gptSwift = GPTSwift(apiKey: "YOUR_API_KEY")
 try await gptSwift.askChatGPT("What is the answer to life, the universe and everything in it?")
 ```
 
