@@ -1,6 +1,6 @@
 # GPTSwift
 
-GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is completely written in Swift. Currently, only the ChatGPT's API is supported.
+GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is completely written in Swift. Currently, only ChatGPT's API is supported.
 
 Using GPTSwift is easy:
 
