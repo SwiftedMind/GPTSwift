@@ -31,7 +31,7 @@ public struct ChatRequest: Codable {
     /// The model to use.
     ///
     /// The default is to use the current model, that continuously receives updates.
-    public var model: Model
+    public var model: ChatModel
 
     /// The messages for the request.
     public var messages: [ChatMessage]
@@ -68,9 +68,11 @@ public struct ChatRequest: Codable {
     /// An optional user identifier to help detect misuse of the API.
     public var user: String?
 
+    var stream: Bool
+
     /// A chat request is the main interface to ChatGPT's API.
     public init(
-        model: Model = .newest,
+        model: ChatModel = .newest,
         messages: [ChatMessage] = [],
         maximumTokens: Int? = nil,
         temperature: Double? = nil,
@@ -79,7 +81,8 @@ public struct ChatRequest: Codable {
         presencePenalty: Double? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Double]? = nil,
-        user: String? = nil
+        user: String? = nil,
+        stream: Bool = false
     ) {
         self.model = model
         self.messages = messages
@@ -91,6 +94,7 @@ public struct ChatRequest: Codable {
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
         self.user = user
+        self.stream = stream
     }
 
     public enum CodingKeys: String, CodingKey {
@@ -103,22 +107,8 @@ public struct ChatRequest: Codable {
         case presencePenalty = "presence_penalty"
         case frequencyPenalty = "frequency_penalty"
         case logitBias = "logit_bias"
+        case stream
+        case user
     }
 }
 
-// MARK: - Subtypes
-
-extension ChatRequest {
-
-    /// The ChatGPT model.
-    public enum Model: String, Codable {
-
-        /// The newest model that will continuously receive updates and might change behavior at any time.
-        case newest = "gpt-3.5-turbo"
-
-        /// The stable version from March 2023 that will not receive any updates.
-        ///
-        /// This will be available through at least June 1st 2023.
-        case stableMarchVersion = "gpt-3.5-turbo-0301"
-    }
-}

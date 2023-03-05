@@ -31,6 +31,9 @@ public class GPTSwift: APIClientDelegate {
     private let client: APIClient
     private let apiClientRequestHandler: APIClientRequestHandler
 
+    /// A version of GPTSwift that streams all the answers.
+    public let streamedAnswer: StreamedAnswer
+
     /// A simple wrapper around the API for OpenAI.
     ///
     /// Currently only supporting ChatGPT's model.
@@ -40,6 +43,7 @@ public class GPTSwift: APIClientDelegate {
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
         }
+        self.streamedAnswer = .init(client: client, apiKey: apiKey)
     }
 
     /// Ask ChatGPT a single prompt without any special configuration.
@@ -54,18 +58,7 @@ public class GPTSwift: APIClientDelegate {
             ])
         )
 
-        return try await client.send(request).value
-    }
 
-    /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
-    /// - Parameter request: The request.
-    /// - Returns: The response.
-    public func askChatGPT(request: ChatRequest) async throws -> ChatResponse {
-        let request = Request<ChatResponse>(
-            path: API.v1ChatCompletion,
-            method: .post,
-            body: request
-        )
         return try await client.send(request).value
     }
 
@@ -77,6 +70,18 @@ public class GPTSwift: APIClientDelegate {
             path: API.v1ChatCompletion,
             method: .post,
             body: ChatRequest(messages: messages)
+        )
+        return try await client.send(request).value
+    }
+
+    /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
+    /// - Parameter request: The request.
+    /// - Returns: The response.
+    public func askChatGPT(request: ChatRequest) async throws -> ChatResponse {
+        let request = Request<ChatResponse>(
+            path: API.v1ChatCompletion,
+            method: .post,
+            body: request
         )
         return try await client.send(request).value
     }

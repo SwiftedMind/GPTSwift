@@ -22,22 +22,19 @@
 
 import Foundation
 
-/// A message is a part of the chat conversation.
-///
-/// GPT does not remember any previous messages, so if you want to keep a conversation coherent,
-/// you should always send previous messages with every new chat request. It might also be useful to send GPT's answers with the request as well (using the message `role` `assistant`).
+/// A streamed message is a part of the chat conversation.
 ///
 /// For more about this, see the [OpenAI documentation](https://platform.openai.com/docs/guides/chat/introduction).
-public struct ChatMessage: Codable {
+public struct ChatStreamedMessage: Codable {
 
     /// The role of the message.
-    public var role: ChatMessageRole
+    public var role: ChatMessageRole?
 
     /// The content of the message.
-    public var content: String
+    public var content: String?
 
     /// A message is a part of the chat conversation.
-    public init(role: ChatMessageRole, content: String) {
+    init(role: ChatMessageRole?, content: String?) {
         self.role = role
         self.content = content
     }

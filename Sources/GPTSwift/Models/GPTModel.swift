@@ -18,27 +18,17 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
-//
 
 import Foundation
 
-/// A message is a part of the chat conversation.
-///
-/// GPT does not remember any previous messages, so if you want to keep a conversation coherent,
-/// you should always send previous messages with every new chat request. It might also be useful to send GPT's answers with the request as well (using the message `role` `assistant`).
-///
-/// For more about this, see the [OpenAI documentation](https://platform.openai.com/docs/guides/chat/introduction).
-public struct ChatMessage: Codable {
+/// The ChatGPT model.
+public enum ChatModel: String, Codable {
 
-    /// The role of the message.
-    public var role: ChatMessageRole
+    /// The newest model that will continuously receive updates and might change behavior at any time.
+    case newest = "gpt-3.5-turbo"
 
-    /// The content of the message.
-    public var content: String
-
-    /// A message is a part of the chat conversation.
-    public init(role: ChatMessageRole, content: String) {
-        self.role = role
-        self.content = content
-    }
+    /// The stable version from March 2023 that will not receive any updates.
+    ///
+    /// This will be available through at least June 1st 2023.
+    case stableMarchVersion = "gpt-3.5-turbo-0301"
 }
