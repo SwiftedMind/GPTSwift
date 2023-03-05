@@ -45,7 +45,7 @@ public class GPTSwift: APIClientDelegate {
     /// Ask ChatGPT a single prompt without any special configuration.
     /// - Parameter userPrompt: The prompt to send
     /// - Returns: The response.
-    public func askChat(_ userPrompt: String) async throws -> ChatResponse {
+    public func askChatGPT(_ userPrompt: String) async throws -> ChatResponse {
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
             method: .post,
@@ -60,7 +60,7 @@ public class GPTSwift: APIClientDelegate {
     /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
     /// - Parameter request: The request.
     /// - Returns: The response.
-    public func askChat(_ request: ChatRequest) async throws -> ChatResponse {
+    public func askChatGPT(request: ChatRequest) async throws -> ChatResponse {
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
             method: .post,
@@ -72,7 +72,7 @@ public class GPTSwift: APIClientDelegate {
     /// Ask ChatGPT something by sending multiple messages without any special configuration.
     /// - Parameter messages: The chat messages.
     /// - Returns: The response.
-    public func askChat(messages: [ChatMessage]) async throws -> ChatResponse {
+    public func askChatGPT(messages: [ChatMessage]) async throws -> ChatResponse {
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
             method: .post,
