@@ -23,7 +23,7 @@
 import Foundation
 import Get
 
-extension GPTSwift {
+extension ChatGPTSwift {
     public class StreamedAnswer {
         private let client: APIClient
         private let apiKey: String
@@ -36,26 +36,26 @@ extension GPTSwift {
         /// Ask ChatGPT a single prompt without any special configuration.
         /// - Parameter userPrompt: The prompt to send
         /// - Returns: The response.
-        @available(iOS 15.0, *)
-        public func askChatGPT(_ userPrompt: String) async throws -> AsyncThrowingStream<String, Swift.Error> {
+        @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+        public func ask(_ userPrompt: String) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let chatRequest = ChatRequest(messages: [.init(role: .user, content: userPrompt)], stream: true)
-            return try await askChatGPT(request: chatRequest)
+            return try await ask(with: chatRequest)
         }
 
         /// Ask ChatGPT something by sending multiple messages without any special configuration.
         /// - Parameter messages: The chat messages.
         /// - Returns: The response.
-        @available(iOS 15.0, *)
-        public func askChatGPT(messages: [ChatMessage]) async throws -> AsyncThrowingStream<String, Swift.Error> {
+        @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+        public func ask(messages: [ChatMessage]) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let chatRequest = ChatRequest(messages: messages, stream: true)
-            return try await askChatGPT(request: chatRequest)
+            return try await ask(with: chatRequest)
         }
 
         /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
         /// - Parameter request: The request.
         /// - Returns: The response.
-        @available(iOS 15.0, *)
-        public func askChatGPT(request chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
+        @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+        public func ask(with chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
             addHeaders(to: &urlRequest)
@@ -93,6 +93,7 @@ extension GPTSwift {
                     } catch {
                         throw Error.networkError(error)
                     }
+
                     continuation.finish()
                 }
             }
@@ -105,7 +106,7 @@ extension GPTSwift {
     }
 }
 
-extension GPTSwift.StreamedAnswer {
+extension ChatGPTSwift.StreamedAnswer {
     public enum Error: Swift.Error {
         case invalidResponse
         case unacceptableStatusCode(code: Int, message: String)

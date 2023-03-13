@@ -5,7 +5,12 @@ import PackageDescription
 
 let package = Package(
     name: "GPTSwift",
-    platforms: [.iOS(.v13), .macOS(.v10_15)],
+    platforms: [
+        .iOS(.v13),
+        .macOS(.v10_15),
+        .watchOS(.v8),
+        .tvOS(.v15)
+    ],
     products: [
         .library(
             name: "GPTSwift",
