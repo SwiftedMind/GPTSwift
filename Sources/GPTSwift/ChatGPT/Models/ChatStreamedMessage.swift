@@ -22,43 +22,20 @@
 
 import Foundation
 
-/// A message is a part of the chat conversation.
-///
-/// GPT does not remember any previous messages, so if you want to keep a conversation coherent,
-/// you should always send previous messages with every new chat request. It might also be useful to send GPT's answers with the request as well (using the message `role` `assistant`).
+/// A streamed message is a part of the chat conversation.
 ///
 /// For more about this, see the [OpenAI documentation](https://platform.openai.com/docs/guides/chat/introduction).
-public struct ChatMessage: Codable {
+public struct ChatStreamedMessage: Codable {
 
     /// The role of the message.
-    public var role: Role
+    public var role: ChatMessageRole?
 
     /// The content of the message.
-    public var content: String
+    public var content: String?
 
     /// A message is a part of the chat conversation.
-    public init(role: Role, content: String) {
+    init(role: ChatMessageRole?, content: String?) {
         self.role = role
         self.content = content
-    }
-}
-
-extension ChatMessage {
-    
-    /// A role can be seen as the "owner", or "author" of a given message. You use this to allow GPT to differentiate between actual user prompts, behavior instructions (by you, the developer) and previous answers by GPT.
-    ///
-    /// For more information, see the [OpenAI documentation](https://platform.openai.com/docs/guides/chat/introduction).
-    public enum Role: String, Codable {
-
-        /// The user role is the used for the prompts made by the end-user.
-        case user
-
-        /// The system role is used to instruct GPT on how to behave and what to generate.
-        case system
-
-        /// The assistant role is usually meant to indicate that a message originates from a previous GPT answer.
-        ///
-        /// This is useful because it allows GPT to recall previous answers and know about the general context of the conversation.
-        case assistant
     }
 }
