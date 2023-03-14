@@ -51,9 +51,6 @@ Alternatively, if you want to add the package to an Xcode project, go to `File` 
 
 ## Usage
 
-> **Note**
-> If you want to stream GPT's answers via an `AsyncThrowingStream`, checkout the `develop` branch, which has a working implementation for this. A new release will happen, once I've tested it a bit.
-
 GPTSwift is just a lightweight wrapper around the API. Here are a few examples:
 
 ```swift
