@@ -22,8 +22,9 @@
 
 import Foundation
 import Get
+import Base
 
-extension ChatGPTSwift {
+extension ChatGPT {
     public class StreamedAnswer {
         private let client: APIClient
         private let apiKey: String
@@ -106,7 +107,7 @@ extension ChatGPTSwift {
     }
 }
 
-extension ChatGPTSwift.StreamedAnswer {
+extension ChatGPT.StreamedAnswer {
     public enum Error: Swift.Error {
         case invalidResponse
         case unacceptableStatusCode(code: Int, message: String)

@@ -18,11 +18,39 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
+//
 
 import Foundation
+import Get
+import Base
 
-struct API {
-    private init() {}
-    static let base = "https://api.openai.com/"
-    static let v1ChatCompletion = "v1/chat/completions"
+extension GPT {
+    public class StreamedAnswer {
+        private let client: APIClient
+        private let apiKey: String
+
+        init(client: APIClient, apiKey: String) {
+            self.client = client
+            self.apiKey = apiKey
+        }
+    }
+}
+
+extension GPT.StreamedAnswer {
+    public enum Error: Swift.Error {
+        case invalidResponse
+        case unacceptableStatusCode(code: Int, message: String)
+        case networkError(Swift.Error)
+    }
+}
+
+private let decoder = JSONDecoder()
+private extension String {
+//    var asStreamedResponse: ChatStreamedResponse? {
+//        guard hasPrefix("data: "),
+//              let data = dropFirst(6).data(using: .utf8) else {
+//            return nil
+//        }
+//        return try! decoder.decode(ChatStreamedResponse.self, from: data)
+//    }
 }

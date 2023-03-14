@@ -13,17 +13,35 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "GPTSwift",
-            targets: ["GPTSwift"]),
+            name: "ChatGPT",
+            targets: ["ChatGPT"]
+        ),
+        .library(
+            name: "GPT",
+            targets: ["GPT"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/kean/Get", from: "2.1.6")
     ],
     targets: [
         .target(
-            name: "GPTSwift",
+            name: "Base",
+            dependencies: []
+        ),
+        .target(
+            name: "ChatGPT",
             dependencies: [
+                "Base",
                 .product(name: "Get", package: "Get")
-            ])
+            ]
+        ),
+        .target(
+            name: "GPT",
+            dependencies: [
+                "Base",
+                .product(name: "Get", package: "Get")
+            ]
+        )
     ]
 )

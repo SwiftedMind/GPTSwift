@@ -22,9 +22,10 @@
 
 import Foundation
 import Get
+import Base
 
 /// A simple wrapper around the API for OpenAI's ChatGPT.
-public class ChatGPTSwift: APIClientDelegate {
+public class ChatGPT {
 
     private let client: APIClient
     private let apiClientRequestHandler: APIClientRequestHandler
@@ -55,7 +56,6 @@ public class ChatGPTSwift: APIClientDelegate {
                 .init(role: .user, content: userPrompt)
             ])
         )
-
 
         return try await client.send(request).value
     }
