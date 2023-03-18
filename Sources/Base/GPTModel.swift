@@ -21,14 +21,20 @@
 
 import Foundation
 
-/// The ChatGPT model.
-public enum ChatModel: String, Codable {
+public protocol GPTModel {
+    var rawValue: String { get }
+}
 
-    /// The newest model that will continuously receive updates and might change behavior at any time.
-    case newest = "gpt-3.5-turbo"
+// MARK: - GPT 3 Model
 
-    /// The stable version from March 2023 that will not receive any updates.
-    ///
-    /// This will be available through at least June 1st 2023.
-    case stableMarchVersion = "gpt-3.5-turbo-0301"
+public struct DavinciGPTModel: GPTModel {
+    public var rawValue: String = "text-davinci-003"
+}
+
+// MARK: - Protocol Extensions
+
+public extension GPTModel where Self == DavinciGPTModel {
+    static var davinci: DavinciGPTModel {
+        DavinciGPTModel()
+    }
 }

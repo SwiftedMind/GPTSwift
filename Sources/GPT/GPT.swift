@@ -29,6 +29,7 @@ public class GPT {
 
     private let client: APIClient
     private let apiClientRequestHandler: APIClientRequestHandler
+    private let globalModelDefault: GPTModel
 
     /// A version of GPTSwift that streams all the answers.
     public let streamedAnswer: StreamedAnswer
@@ -37,19 +38,23 @@ public class GPT {
     ///
     /// Currently only supporting ChatGPT's model.
     /// - Parameter apiKey: The api key you can generate in your account page on OpenAI's website.
-    public init(apiKey: String) {
+    public init(apiKey: String, globalModelDefault: GPTModel = .davinci) {
         self.apiClientRequestHandler = .init(apiKey: apiKey)
+        self.globalModelDefault = globalModelDefault
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
         }
-        self.streamedAnswer = .init(client: client, apiKey: apiKey)
+        self.streamedAnswer = .init(client: client, apiKey: apiKey, globalModelDefault: globalModelDefault)
     }
 
-    public func complete(_ prompt: String) async throws -> CompletionResponse {
+    public func complete(
+        _ userPrompt: String,
+        model: GPTModel? = nil
+    ) async throws -> CompletionResponse {
         let request = Request<CompletionResponse>(
             path: API.v1Completion,
             method: .post,
-            body: CompletionRequest(prompts: prompt)
+            body: CompletionRequest(model: model ?? globalModelDefault, prompts: userPrompt)
         )
 
         return try await client.send(request).value

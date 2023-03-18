@@ -21,6 +21,7 @@
 //
 
 import Foundation
+import Base
 
 /// A chat request is the main interface to ChatGPT's API.
 ///
@@ -29,9 +30,7 @@ import Foundation
 public struct ChatRequest: Codable {
 
     /// The model to use.
-    ///
-    /// The default is to use the current model, that continuously receives updates.
-    public var model: ChatModel
+    public var model: String
 
     /// The messages for the request.
     public var messages: [ChatMessage]
@@ -68,11 +67,12 @@ public struct ChatRequest: Codable {
     /// An optional user identifier to help detect misuse of the API.
     public var user: String?
 
+    /// A boolean flag indicating if the answers should be streamed.
     var stream: Bool
 
     /// A chat request is the main interface to ChatGPT's API.
     public init(
-        model: ChatModel = .newest,
+        model: ChatGPTModel = .gpt3,
         messages: [ChatMessage] = [],
         maximumTokens: Int? = nil,
         temperature: Double? = nil,
@@ -84,7 +84,7 @@ public struct ChatRequest: Codable {
         user: String? = nil,
         stream: Bool = false
     ) {
-        self.model = model
+        self.model = model.rawValue
         self.messages = messages
         self.maximumTokens = maximumTokens
         self.temperature = temperature

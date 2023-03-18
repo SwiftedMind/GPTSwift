@@ -21,13 +21,14 @@
 //
 
 import Foundation
+import Base
 
 public struct CompletionRequest: Codable {
 
     /// The model to use.
     ///
     /// The default is to use the current model, that continuously receives updates.
-    public var model: Model
+    public var model: String
   
     /// The prompts for the request.
     public var prompts: String//[CompletionPrompt]?
@@ -79,7 +80,7 @@ public struct CompletionRequest: Codable {
 
     /// A chat request is the main interface to ChatGPT's API.
     public init(
-        model: Model = .gpt3_5,
+        model: GPTModel = .davinci,
 //        prompts: [CompletionPrompt]?,
         prompts: String,
         suffix: String? = nil,
@@ -97,7 +98,7 @@ public struct CompletionRequest: Codable {
         user: String? = nil,
         stream: Bool = false
     ) {
-        self.model = model
+        self.model = model.rawValue
         self.prompts = prompts
         self.suffix = suffix
         self.maximumTokens = maximumTokens

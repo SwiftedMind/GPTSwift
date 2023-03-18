@@ -32,7 +32,7 @@ public struct CompletionResponse: Codable {
     public var created: Int
 
     /// The model used for generating the response.
-    public var model: Model
+    public var model: String
 
     /// Usage statistics, for example the used tokens.
     public var usage: Usage

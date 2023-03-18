@@ -32,7 +32,7 @@ public struct ChatStreamedResponse: Codable {
     public var created: Int
 
     /// The model used for generating the response.
-    public var model: ChatModel
+    public var model: String
 
     /// The answers that GPT generated.
     public var choices: [Choice]

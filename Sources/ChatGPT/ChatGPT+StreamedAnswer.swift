@@ -28,18 +28,38 @@ extension ChatGPT {
     public class StreamedAnswer {
         private let client: APIClient
         private let apiKey: String
+        private let globalModelDefault: ChatGPTModel
 
-        init(client: APIClient, apiKey: String) {
+        init(client: APIClient, apiKey: String, globalModelDefault: ChatGPTModel) {
             self.client = client
             self.apiKey = apiKey
+            self.globalModelDefault = globalModelDefault
         }
 
         /// Ask ChatGPT a single prompt without any special configuration.
         /// - Parameter userPrompt: The prompt to send
+        /// - Parameter systemPrompt: an optional system prompt to give GPT instructions on how to answer.
+        /// - Parameter model: The model that should be used. If this is `nil`, then `ChatGPT.globalModelDefault` will be used.
         /// - Returns: The response.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-        public func ask(_ userPrompt: String) async throws -> AsyncThrowingStream<String, Swift.Error> {
-            let chatRequest = ChatRequest(messages: [.init(role: .user, content: userPrompt)], stream: true)
+        public func ask(
+            _ userPrompt: String,
+            withSystemPrompt systemPrompt: String? = nil,
+            model: ChatGPTModel? = nil
+        ) async throws -> AsyncThrowingStream<String, Swift.Error> {
+            var messages: [ChatMessage] = []
+
+            if let systemPrompt {
+                messages.insert(.init(role: .system, content: systemPrompt), at: 0)
+            }
+
+            messages.append(.init(role: .user, content: userPrompt))
+            let chatRequest = ChatRequest(
+                model: model ?? globalModelDefault,
+                messages: messages,
+                stream: true
+            )
+
             return try await ask(with: chatRequest)
         }
 

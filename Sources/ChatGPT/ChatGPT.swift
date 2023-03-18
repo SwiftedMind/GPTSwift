@@ -24,11 +24,13 @@ import Foundation
 import Get
 import Base
 
-/// A simple wrapper around the API for OpenAI's ChatGPT.
+/// A simple wrapper around the API for OpenAI's ChatGPT with support for GPT3 as well as GPT4.
 public class ChatGPT {
 
     private let client: APIClient
     private let apiClientRequestHandler: APIClientRequestHandler
+
+    private let globalModelDefault: ChatGPTModel
 
     /// A version of GPTSwift that streams all the answers.
     public let streamedAnswer: StreamedAnswer
@@ -37,24 +39,38 @@ public class ChatGPT {
     ///
     /// Currently only supporting ChatGPT's model.
     /// - Parameter apiKey: The api key you can generate in your account page on OpenAI's website.
-    public init(apiKey: String) {
+    /// - Parameter globalModelDefault: Sets the default model for all requests coming from this `ChatGPT` instance.
+    public init(apiKey: String, globalModelDefault: ChatGPTModel = .gpt3) {
         self.apiClientRequestHandler = .init(apiKey: apiKey)
+        self.globalModelDefault = globalModelDefault
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
         }
-        self.streamedAnswer = .init(client: client, apiKey: apiKey)
+        self.streamedAnswer = .init(client: client, apiKey: apiKey, globalModelDefault: globalModelDefault)
     }
 
     /// Ask ChatGPT a single prompt without any special configuration.
     /// - Parameter userPrompt: The prompt to send
+    /// - Parameter systemPrompt: an optional system prompt to give GPT instructions on how to answer.
+    /// - Parameter model: The model that should be used. If this is `nil`, then `ChatGPT.globalModelDefault` will be used.
     /// - Returns: The response.
-    public func ask(_ userPrompt: String) async throws -> ChatResponse {
+    public func ask(
+        _ userPrompt: String,
+        withSystemPrompt systemPrompt: String? = nil,
+        model: ChatGPTModel? = nil
+    ) async throws -> ChatResponse {
+        var messages: [ChatMessage] = []
+
+        if let systemPrompt {
+            messages.insert(.init(role: .system, content: systemPrompt), at: 0)
+        }
+
+        messages.append(.init(role: .user, content: userPrompt))
+
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
             method: .post,
-            body: ChatRequest(messages: [
-                .init(role: .user, content: userPrompt)
-            ])
+            body: ChatRequest(model: model ?? globalModelDefault, messages: messages)
         )
 
         return try await client.send(request).value
@@ -63,11 +79,11 @@ public class ChatGPT {
     /// Ask ChatGPT something by sending multiple messages without any special configuration.
     /// - Parameter messages: The chat messages.
     /// - Returns: The response.
-    public func ask(messages: [ChatMessage]) async throws -> ChatResponse {
+    public func ask(messages: [ChatMessage], model: ChatGPTModel = .gpt3) async throws -> ChatResponse {
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
             method: .post,
-            body: ChatRequest(messages: messages)
+            body: ChatRequest(model: .gpt3, messages: messages)
         )
         return try await client.send(request).value
     }
