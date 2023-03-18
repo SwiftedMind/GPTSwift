@@ -53,12 +53,12 @@ public class ChatGPT {
     /// - Parameter userPrompt: The prompt to send
     /// - Parameter systemPrompt: an optional system prompt to give GPT instructions on how to answer.
     /// - Parameter model: The model that should be used. If this is `nil`, then `ChatGPT.globalModelDefault` will be used.
-    /// - Returns: The response.
+    /// - Returns: The response as string.
     public func ask(
         _ userPrompt: String,
         withSystemPrompt systemPrompt: String? = nil,
         model: ChatGPTModel? = nil
-    ) async throws -> ChatResponse {
+    ) async throws -> String {
         var messages: [ChatMessage] = []
 
         if let systemPrompt {
@@ -73,7 +73,24 @@ public class ChatGPT {
             body: ChatRequest(model: model ?? globalModelDefault, messages: messages)
         )
 
-        return try await client.send(request).value
+        do {
+            let response = try await client.send(request).value
+
+            guard let answer = response.choices.first?.message.content else {
+                throw Error.couldNotParseResponse
+            }
+
+            return answer
+        } catch let error as APIError {
+            switch error {
+            case let .unacceptableStatusCode(int) where int == 401:
+                throw Error.unauthorized
+            default:
+                throw Error.requestFailed
+            }
+        } catch {
+            throw Error.requestFailed
+        }
     }
 
     /// Ask ChatGPT something by sending multiple messages without any special configuration.
@@ -85,7 +102,19 @@ public class ChatGPT {
             method: .post,
             body: ChatRequest(model: .gpt3, messages: messages)
         )
-        return try await client.send(request).value
+
+        do {
+            return try await client.send(request).value
+        } catch let error as APIError {
+            switch error {
+            case let .unacceptableStatusCode(int) where int == 401:
+                throw Error.unauthorized
+            default:
+                throw Error.requestFailed
+            }
+        } catch {
+            throw Error.requestFailed
+        }
     }
 
     /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
@@ -97,19 +126,36 @@ public class ChatGPT {
             method: .post,
             body: request
         )
-        return try await client.send(request).value
+        do {
+            return try await client.send(request).value
+        } catch let error as APIError {
+            switch error {
+            case let .unacceptableStatusCode(int) where int == 401:
+                throw Error.unauthorized
+            default:
+                throw Error.requestFailed
+            }
+        } catch {
+            throw Error.requestFailed
+        }
     }
 }
 
-class APIClientRequestHandler: APIClientDelegate {
-    let apiKey: String
+public extension ChatGPT {
+    enum Error: Swift.Error {
+        case unauthorized
+        case requestFailed
+        case couldNotParseResponse
 
-    init(apiKey: String) {
-        self.apiKey = apiKey
-    }
-
-    func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
-        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        public var errorDescription: String? {
+            switch self {
+            case .unauthorized:
+                return "Request returned 401. Have you provided the correct api key?"
+            case .requestFailed:
+                return "The request failed."
+            case .couldNotParseResponse:
+                return "Could not decode response."
+            }
+        }
     }
 }

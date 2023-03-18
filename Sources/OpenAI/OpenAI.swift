@@ -24,39 +24,65 @@ import Foundation
 import Get
 import Base
 
-/// A simple wrapper around the API for OpenAI's GPT.
-public class GPT {
+public class OpenAI {
 
     private let client: APIClient
     private let apiClientRequestHandler: APIClientRequestHandler
-    private let globalModelDefault: GPTModel
 
-    /// A version of GPTSwift that streams all the answers.
-    public let streamedAnswer: StreamedAnswer
-
-    /// A simple wrapper around the API for OpenAI.
-    ///
-    /// Currently only supporting ChatGPT's model.
-    /// - Parameter apiKey: The api key you can generate in your account page on OpenAI's website.
-    public init(apiKey: String, globalModelDefault: GPTModel = .davinci) {
+    public init(apiKey: String) {
         self.apiClientRequestHandler = .init(apiKey: apiKey)
-        self.globalModelDefault = globalModelDefault
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
         }
-        self.streamedAnswer = .init(client: client, apiKey: apiKey, globalModelDefault: globalModelDefault)
     }
 
-    public func complete(
-        _ userPrompt: String,
-        model: GPTModel? = nil
-    ) async throws -> CompletionResponse {
-        let request = Request<CompletionResponse>(
-            path: API.v1Completion,
-            method: .post,
-            body: CompletionRequest(model: model ?? globalModelDefault, prompts: userPrompt)
-        )
+    public func availableModels() async throws -> [ModelData] {
+        let request = Request<ModelListResponse>(path: API.v1Models)
+        do {
+            return try await client.send(request).value.data
+        } catch let error as APIError {
+            switch error {
+            case let .unacceptableStatusCode(int) where int == 401:
+                throw Error.unauthorized
+            default:
+                throw Error.requestFailed
+            }
+        }
+        catch {
+            throw Error.requestFailed
+        }
+    }
 
-        return try await client.send(request).value
+    public func model(withId id: String) async throws -> ModelData {
+        let request = Request<ModelData>(path: API.v1Model(withId: id))
+        do {
+            return try await client.send(request).value
+        } catch let error as APIError {
+            switch error {
+            case let .unacceptableStatusCode(int) where int == 401:
+                throw Error.unauthorized
+            default:
+                throw Error.requestFailed
+            }
+        }
+        catch {
+            throw Error.requestFailed
+        }
+    }
+}
+
+public extension OpenAI {
+    enum Error: Swift.Error {
+        case unauthorized
+        case requestFailed
+
+        public var errorDescription: String? {
+            switch self {
+            case .unauthorized:
+                return "Request returned 401. Have you provided the correct api key?"
+            case .requestFailed:
+                return "The request failed."
+            }
+        }
     }
 }

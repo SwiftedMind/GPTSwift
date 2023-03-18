@@ -38,7 +38,7 @@ extension ChatGPT {
 
         /// Ask ChatGPT a single prompt without any special configuration.
         /// - Parameter userPrompt: The prompt to send
-        /// - Parameter systemPrompt: an optional system prompt to give GPT instructions on how to answer.
+        /// - Parameter systemPrompt: An optional system prompt to give GPT instructions on how to answer.
         /// - Parameter model: The model that should be used. If this is `nil`, then `ChatGPT.globalModelDefault` will be used.
         /// - Returns: The response.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
@@ -73,13 +73,13 @@ extension ChatGPT {
         }
 
         /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
-        /// - Parameter request: The request.
+        /// - Parameter chatRequest: The request.
         /// - Returns: The response.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func ask(with chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
-            addHeaders(to: &urlRequest)
+            addHeaders(to: &urlRequest, apiKey: apiKey)
 
             let (result, response) = try await client.session.bytes(for: urlRequest)
 
@@ -87,7 +87,7 @@ extension ChatGPT {
                 throw Error.invalidResponse
             }
 
-            guard (200...299).contains(response.statusCode) else {
+            guard response.statusCode.isStatusCodeOkay else {
                 throw Error.unacceptableStatusCode(code: response.statusCode, message: "")
             }
 
@@ -95,21 +95,21 @@ extension ChatGPT {
                 Task {
                     do {
                         for try await line in result.lines {
-                            if let chatResponse = line.asStreamedResponse {
-
-                                // Ignore lines where only the role is specified
-                                if chatResponse.choices.first?.delta.role != nil {
-                                    continue
-                                }
-
-                                if let message = chatResponse.choices.first?.delta.content {
-                                    continuation.yield(message)
-                                } else {
-                                    break
-                                }
-                            } else {
+                            guard let chatResponse = line.asStreamedResponse else {
                                 break
                             }
+
+                            // Ignore lines where only the role is specified
+                            if chatResponse.choices.first?.delta.role != nil {
+                                continue
+                            }
+
+                            guard let message = chatResponse.choices.first?.delta.content else {
+                                continue
+                            }
+
+                            // Yield next token
+                            continuation.yield(message)
                         }
                     } catch {
                         throw Error.networkError(error)
@@ -118,11 +118,6 @@ extension ChatGPT {
                     continuation.finish()
                 }
             }
-        }
-
-        private func addHeaders(to request: inout URLRequest) {
-            request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
     }
 }
@@ -143,5 +138,11 @@ private extension String {
             return nil
         }
         return try! decoder.decode(ChatStreamedResponse.self, from: data)
+    }
+}
+
+private extension Int {
+    var isStatusCodeOkay: Bool {
+        (200...299).contains(self)
     }
 }

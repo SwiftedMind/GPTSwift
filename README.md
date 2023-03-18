@@ -13,13 +13,13 @@ GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is co
 Using GPTSwift is easy:
 
 ```swift
-let gptSwift = ChatGPTSwift(apiKey: "YOUR_API_KEY")
-try await gptSwift.ask("What is the answer to life, the universe and everything in it?")
+let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
+let answer = try await chatGPT.ask("What is the answer to life, the universe and everything in it?")
 
 // Stream the answers as they are generated
-var answer = ""
-for try await nextWord in try await gptSwift.streamedAnswer.ask("Tell me a story about birds") {
-    answer += nextWord
+var streamedAnswer = ""
+for try await nextWord in try await chatGPT.streamedAnswer.ask("Tell me a story about birds") {
+    streamedAnswer += nextWord
 }
 ```
 
@@ -51,23 +51,21 @@ Alternatively, if you want to add the package to an Xcode project, go to `File` 
 
 ## Usage
 
-> **Note**
-> If you want to stream GPT's answers via an `AsyncThrowingStream`, checkout the `develop` branch, which has a working implementation for this. A new release will happen, once I've tested it a bit.
-
 GPTSwift is just a lightweight wrapper around the API. Here are a few examples:
+### ChatGPT
 
 ```swift
-import GPTSwift
+import ChatGPT
 
 func askChatGPT() async throws {
-    let gptSwift = ChatGPTSwift(apiKey: "YOUR_API_KEY")
+    let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
 
     // Basic query
-    let firstResponse = try await gptSwift.ask("What is the answer to life, the universe and everything in it?")
-    print(firstResponse.choices.map(\.message))
+    let firstResponse = try await chatGPT.ask("What is the answer to life, the universe and everything in it?")
+    print(firstResponse)
 
     // Send multiple messages
-    let secondResponse = try await gptSwift.ask(
+    let secondResponse = try await chatGPT.ask(
         messages: [
             ChatMessage(role: .system, content: "You are a dog."),
             ChatMessage(role: .user, content: "Do you actually like playing fetch?")
@@ -85,7 +83,7 @@ func askChatGPT() async throws {
     fullRequest.temperature = 0.8
     fullRequest.numberOfAnswers = 2
 
-    let thirdResponse = try await gptSwift.ask(with: fullRequest)
+    let thirdResponse = try await chatGPT.ask(with: fullRequest)
     print(thirdResponse.choices.map(\.message))
 }
 ```
@@ -95,17 +93,17 @@ func askChatGPT() async throws {
 All of the above methods have a variant that lets you stream GPT's answer word for word, right as they are generated. The stream is provided to you via an `AsyncThrowingStream`. All you have to do is add a `streamedAnswer` before the call to `ask()`. For example:
 
 ```swift
-import GPTSwift
+import ChatGPT
 
 // In your view model
 @Published var gptAnswer = ""
 
 func askChatGPT() async throws {
-    let gptSwift = ChatGPTSwift(apiKey: "YOUR_API_KEY")
+    let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
 
     // Basic query
     gptAnswer = ""
-    for try await nextWord in try await gptSwift.streamedAnswer.ask("Tell me a story about birds") {
+    for try await nextWord in try await chatGPT.streamedAnswer.ask("Tell me a funny story about birds") {
         gptAnswer += nextWord
     }
 }

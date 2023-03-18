@@ -20,15 +20,21 @@
 //  SOFTWARE.
 
 import Foundation
+import Get
 
-public struct API {
-    private init() {}
-    public static let base = "https://api.openai.com/"
-    public static let v1ChatCompletion = "v1/chat/completions"
-    public static let v1Completion = "v1/completions"
-    public static let v1Models = "v1/models"
+public func addHeaders(to request: inout URLRequest, apiKey: String) {
+    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+}
 
-    public static func v1Model(withId id: String) -> String {
-        "v1/models/\(id)"
+public class APIClientRequestHandler: APIClientDelegate {
+    private let apiKey: String
+
+    public init(apiKey: String) {
+        self.apiKey = apiKey
+    }
+
+    public func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
+        addHeaders(to: &request, apiKey: apiKey)
     }
 }

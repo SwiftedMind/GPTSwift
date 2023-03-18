@@ -20,6 +20,10 @@ let package = Package(
             name: "GPT",
             targets: ["GPT"]
         ),
+        .library(
+            name: "OpenAI",
+            targets: ["OpenAI"]
+        )
     ],
     dependencies: [
         .package(url: "https://github.com/kean/Get", from: "2.1.6")
@@ -27,7 +31,9 @@ let package = Package(
     targets: [
         .target(
             name: "Base",
-            dependencies: []
+            dependencies: [
+                .product(name: "Get", package: "Get")
+            ]
         ),
         .target(
             name: "ChatGPT",
@@ -42,6 +48,14 @@ let package = Package(
                 "Base",
                 .product(name: "Get", package: "Get")
             ]
+        ),
+        .target(
+            name: "OpenAI",
+            dependencies: [
+                "Base",
+                .product(name: "Get", package: "Get")
+            ]
         )
+
     ]
 )

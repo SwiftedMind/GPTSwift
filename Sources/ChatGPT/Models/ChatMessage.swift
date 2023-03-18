@@ -41,4 +41,25 @@ public struct ChatMessage: Codable {
         self.role = role
         self.content = content
     }
+
+    /// Convenience method to create a message with the `user` role.
+    /// - Parameter content: The content of the message.
+    /// - Returns: An instance of `ChatMessage` with the `user` role.
+    public static func user(_ content: String) -> Self {
+        .init(role: .user, content: content)
+    }
+
+    /// Convenience method to create a message with the `system` role.
+    /// - Parameter content: The content of the message.
+    /// - Returns: An instance of `ChatMessage` with the `system` role.
+    public static func system(_ content: String) -> Self {
+        .init(role: .system, content: content)
+    }
+
+    /// Convenience method to create a message with the `assistant` role.
+    /// - Parameter content: The content of the message.
+    /// - Returns: An instance of `ChatMessage` with the `assistant` role.
+    public static func assistant(_ content: String) -> Self {
+        .init(role: .assistant, content: content)
+    }
 }
