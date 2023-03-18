@@ -25,6 +25,18 @@ public protocol GPTModel {
     var rawValue: String { get }
 }
 
+// MARK: - Default ChatGPTModel
+
+public struct DefaultGPTModel: GPTModel {
+    public var rawValue: String = ""
+}
+
+// MARK: - Custom GPTModel
+
+public struct CustomGPTModel: GPTModel {
+    public var rawValue: String
+}
+
 // MARK: - GPT 3 Model
 
 public struct DavinciGPTModel: GPTModel {
@@ -32,6 +44,23 @@ public struct DavinciGPTModel: GPTModel {
 }
 
 // MARK: - Protocol Extensions
+
+public extension GPTModel where Self == DefaultGPTModel {
+    static var `default`: Self {
+        DefaultGPTModel()
+    }
+}
+
+public extension GPTModel where Self == CustomGPTModel {
+    /// A fallback model descriptor with which you can set a custom model id string yourself.
+    ///
+    /// Use this, if you need to use a model that is not explicitly provided by GPTSwift. Keep in mind, however, that the model has to behave exactly like the provided ones. Otherwise, the request will likely fail.
+    /// - Parameter modelId: The model id to use, e.g. "gpt-4-some-awesome-variation".
+    /// - Returns: The model descriptor.
+    static func custom(modelId: String) -> Self {
+        CustomGPTModel(rawValue: modelId)
+    }
+}
 
 public extension GPTModel where Self == DavinciGPTModel {
     static var davinci: DavinciGPTModel {

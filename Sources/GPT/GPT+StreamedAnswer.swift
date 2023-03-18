@@ -28,12 +28,12 @@ extension GPT {
     public class StreamedAnswer {
         private let client: APIClient
         private let apiKey: String
-        private let globalModelDefault: GPTModel
+        private let defaultModel: GPTModel
 
-        init(client: APIClient, apiKey: String, globalModelDefault: GPTModel) {
+        init(client: APIClient, apiKey: String, defaultModel: GPTModel) {
             self.client = client
             self.apiKey = apiKey
-            self.globalModelDefault = globalModelDefault
+            self.defaultModel = defaultModel
         }
     }
 }

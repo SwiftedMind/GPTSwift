@@ -28,24 +28,24 @@ extension ChatGPT {
     public class StreamedAnswer {
         private let client: APIClient
         private let apiKey: String
-        private let globalModelDefault: ChatGPTModel
+        private let defaultModel: ChatGPTModel
 
-        init(client: APIClient, apiKey: String, globalModelDefault: ChatGPTModel) {
+        init(client: APIClient, apiKey: String, defaultModel: ChatGPTModel) {
             self.client = client
             self.apiKey = apiKey
-            self.globalModelDefault = globalModelDefault
+            self.defaultModel = defaultModel
         }
 
         /// Ask ChatGPT a single prompt without any special configuration.
         /// - Parameter userPrompt: The prompt to send
         /// - Parameter systemPrompt: An optional system prompt to give GPT instructions on how to answer.
-        /// - Parameter model: The model that should be used. If this is `nil`, then `ChatGPT.globalModelDefault` will be used.
+        /// - Parameter model: The model that should be used.
         /// - Returns: The response.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func ask(
             _ userPrompt: String,
             withSystemPrompt systemPrompt: String? = nil,
-            model: ChatGPTModel? = nil
+            model: ChatGPTModel = .default
         ) async throws -> AsyncThrowingStream<String, Swift.Error> {
             var messages: [ChatMessage] = []
 
@@ -54,8 +54,9 @@ extension ChatGPT {
             }
 
             messages.append(.init(role: .user, content: userPrompt))
+            let usingModel = model is DefaultChatGPTModel ? defaultModel : model
             let chatRequest = ChatRequest(
-                model: model ?? globalModelDefault,
+                model: usingModel,
                 messages: messages,
                 stream: true
             )
@@ -65,10 +66,15 @@ extension ChatGPT {
 
         /// Ask ChatGPT something by sending multiple messages without any special configuration.
         /// - Parameter messages: The chat messages.
+        /// - Parameter model: The model that should be used.
         /// - Returns: The response.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-        public func ask(messages: [ChatMessage]) async throws -> AsyncThrowingStream<String, Swift.Error> {
-            let chatRequest = ChatRequest(messages: messages, stream: true)
+        public func ask(
+            messages: [ChatMessage],
+            model: ChatGPTModel = .default
+        ) async throws -> AsyncThrowingStream<String, Swift.Error> {
+            let usingModel = model is DefaultChatGPTModel ? defaultModel : model
+            let chatRequest = ChatRequest(model: usingModel, messages: messages, stream: true)
             return try await ask(with: chatRequest)
         }
 
