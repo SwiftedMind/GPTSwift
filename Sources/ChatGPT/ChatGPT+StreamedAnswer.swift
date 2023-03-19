@@ -23,6 +23,7 @@
 import Foundation
 import Get
 import Base
+import GPTSwiftSharedTypes
 
 extension ChatGPT {
     public class StreamedAnswer {
@@ -55,10 +56,9 @@ extension ChatGPT {
 
             messages.append(.init(role: .user, content: userPrompt))
             let usingModel = model is DefaultChatGPTModel ? defaultModel : model
-            let chatRequest = ChatRequest(
+            let chatRequest = ChatRequest.streamed(
                 model: usingModel,
-                messages: messages,
-                stream: true
+                messages: messages
             )
 
             return try await ask(with: chatRequest)
@@ -74,7 +74,7 @@ extension ChatGPT {
             model: ChatGPTModel = .default
         ) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let usingModel = model is DefaultChatGPTModel ? defaultModel : model
-            let chatRequest = ChatRequest(model: usingModel, messages: messages, stream: true)
+            let chatRequest = ChatRequest.streamed(model: usingModel, messages: messages)
             return try await ask(with: chatRequest)
         }
 
@@ -90,11 +90,11 @@ extension ChatGPT {
             let (result, response) = try await client.session.bytes(for: urlRequest)
 
             guard let response = response as? HTTPURLResponse else {
-                throw Error.invalidResponse
+                throw GPTSwiftError.requestFailed
             }
 
             guard response.statusCode.isStatusCodeOkay else {
-                throw Error.unacceptableStatusCode(code: response.statusCode, message: "")
+                throw GPTSwiftError.requestFailed
             }
 
             return AsyncThrowingStream { continuation in
@@ -118,21 +118,13 @@ extension ChatGPT {
                             continuation.yield(message)
                         }
                     } catch {
-                        throw Error.networkError(error)
+                        throw GPTSwiftError.requestFailed
                     }
 
                     continuation.finish()
                 }
             }
         }
-    }
-}
-
-extension ChatGPT.StreamedAnswer {
-    public enum Error: Swift.Error {
-        case invalidResponse
-        case unacceptableStatusCode(code: Int, message: String)
-        case networkError(Swift.Error)
     }
 }
 
@@ -143,7 +135,7 @@ private extension String {
               let data = dropFirst(6).data(using: .utf8) else {
             return nil
         }
-        return try! decoder.decode(ChatStreamedResponse.self, from: data)
+        return try? decoder.decode(ChatStreamedResponse.self, from: data)
     }
 }
 

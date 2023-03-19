@@ -23,6 +23,7 @@
 import Foundation
 import Get
 import Base
+import GPTSwiftSharedTypes
 
 extension GPT {
     public class StreamedAnswer {
@@ -35,24 +36,79 @@ extension GPT {
             self.apiKey = apiKey
             self.defaultModel = defaultModel
         }
-    }
-}
 
-extension GPT.StreamedAnswer {
-    public enum Error: Swift.Error {
-        case invalidResponse
-        case unacceptableStatusCode(code: Int, message: String)
-        case networkError(Swift.Error)
+        @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+        public func complete(
+            _ userPrompt: String,
+            model: GPTModel = .default
+        ) async throws -> AsyncThrowingStream<String, Swift.Error> {
+            let usingModel = model is DefaultGPTModel ? defaultModel : model
+            let completionRequest = CompletionRequest.streamed(
+                model: usingModel,
+                prompt: userPrompt
+            )
+
+            return try await complete(with: completionRequest)
+        }
+
+        /// Ask GPT something by providing a request object, giving you full control over the request's configuration.
+        /// - Parameter completionRequest: The request.
+        /// - Returns: The response.
+        @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
+        public func complete(with completionRequest: CompletionRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
+            let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
+            var urlRequest = try await client.makeURLRequest(for: request)
+            addHeaders(to: &urlRequest, apiKey: apiKey)
+
+            let (result, response) = try await client.session.bytes(for: urlRequest)
+
+            guard let response = response as? HTTPURLResponse else {
+                throw GPTSwiftError.requestFailed
+            }
+
+            guard response.statusCode.isStatusCodeOkay else {
+                throw GPTSwiftError.requestFailed
+            }
+
+            return AsyncThrowingStream { continuation in
+                Task {
+                    do {
+                        for try await line in result.lines {
+                            guard let chatResponse = line.asStreamedResponse else {
+                                break
+                            }
+
+                            guard let message = chatResponse.choices.first?.text else {
+                                continue
+                            }
+
+                            // Yield next token
+                            continuation.yield(message)
+                        }
+                    } catch {
+                        throw GPTSwiftError.requestFailed
+                    }
+
+                    continuation.finish()
+                }
+            }
+        }
     }
 }
 
 private let decoder = JSONDecoder()
 private extension String {
-//    var asStreamedResponse: ChatStreamedResponse? {
-//        guard hasPrefix("data: "),
-//              let data = dropFirst(6).data(using: .utf8) else {
-//            return nil
-//        }
-//        return try! decoder.decode(ChatStreamedResponse.self, from: data)
-//    }
+    var asStreamedResponse: CompletionStreamedResponse? {
+        guard hasPrefix("data: "),
+              let data = dropFirst(6).data(using: .utf8) else {
+            return nil
+        }
+        return try? decoder.decode(CompletionStreamedResponse.self, from: data)
+    }
+}
+
+private extension Int {
+    var isStatusCodeOkay: Bool {
+        (200...299).contains(self)
+    }
 }

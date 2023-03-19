@@ -30,9 +30,8 @@ public struct CompletionRequest: Codable {
     /// The default is to use the current model, that continuously receives updates.
     public var model: String
   
-    /// The prompts for the request.
-    public var prompts: String//[CompletionPrompt]?
-
+    /// The prompt for the request.
+    public var prompt: String
 
     public var suffix: String?
 
@@ -81,8 +80,7 @@ public struct CompletionRequest: Codable {
     /// A chat request is the main interface to ChatGPT's API.
     public init(
         model: GPTModel = .davinci,
-//        prompts: [CompletionPrompt]?,
-        prompts: String,
+        prompt: String,
         suffix: String? = nil,
         maximumTokens: Int? = nil,
         temperature: Double? = nil,
@@ -95,11 +93,10 @@ public struct CompletionRequest: Codable {
         frequencyPenalty: Double? = nil,
         bestOf: Int? = nil,
         logitBias: [String : Double]? = nil,
-        user: String? = nil,
-        stream: Bool = false
+        user: String? = nil
     ) {
         self.model = model.rawValue
-        self.prompts = prompts
+        self.prompt = prompt
         self.suffix = suffix
         self.maximumTokens = maximumTokens
         self.temperature = temperature
@@ -113,12 +110,18 @@ public struct CompletionRequest: Codable {
         self.bestOf = bestOf
         self.logitBias = logitBias
         self.user = user
-        self.stream = stream
+        self.stream = false
+    }
+
+    static func streamed(model: GPTModel, prompt: String) -> Self {
+        var request = CompletionRequest(model: model, prompt: prompt)
+        request.stream = true
+        return request
     }
 
     public enum CodingKeys: String, CodingKey {
         case model
-        case prompts = "prompt"
+        case prompt
         case suffix
         case maximumTokens = "max_tokens"
         case temperature

@@ -20,41 +20,41 @@
 //  SOFTWARE.
 
 /// The response for a GPT `ChatRequest` that is streamed.
-public struct ChatStreamedResponse: Codable {
+struct ChatStreamedResponse: Codable {
 
     /// An identifier for the response.
-    public var id: String
+    var id: String
 
     /// The description of the response. Usually, this should be "chat.completion".
-    public var object: String
+    var object: String
 
     /// The creation date of the response.
-    public var created: Int
+    var created: Int
 
     /// The model used for generating the response.
-    public var model: String
+    var model: String
 
     /// The answers that GPT generated.
-    public var choices: [Choice]
+    var choices: [Choice]
 }
 
 extension ChatStreamedResponse {
 
     /// An answer that GPT generated.
-    public struct Choice: Codable {
+    struct Choice: Codable {
 
         /// The actual message of the answer.
-        public var delta: ChatStreamedMessage
+        var delta: ChatStreamedMessage
 
         /// An optional reason for the termination of the message.
         ///
         /// For example, this can be "stop" to indicate GPT considers the answer as done.
-        public var finishReason: String?
+        var finishReason: String?
 
         /// The index of the message in the messages array of `CompletionResponse`.
-        public var index: Int
+        var index: Int
 
-        public enum CodingKeys: String, CodingKey {
+        enum CodingKeys: String, CodingKey {
             case delta
             case finishReason = "finish_reason"
             case index

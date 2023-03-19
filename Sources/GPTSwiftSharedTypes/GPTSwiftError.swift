@@ -18,24 +18,9 @@
 //  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
-//
 
-import Foundation
-
-/// A streamed message is a part of the chat conversation.
-///
-/// For more about this, see the [OpenAI documentation](https://platform.openai.com/docs/guides/chat/introduction).
-struct ChatStreamedMessage: Codable {
-
-    /// The role of the message.
-    var role: ChatMessageRole?
-
-    /// The content of the message.
-    var content: String?
-
-    /// A message is a part of the chat conversation.
-    init(role: ChatMessageRole?, content: String?) {
-        self.role = role
-        self.content = content
-    }
+public enum GPTSwiftError: Swift.Error {
+    case unauthorized
+    case requestFailed
+    case other(Swift.Error)
 }

@@ -14,15 +14,15 @@ let package = Package(
     products: [
         .library(
             name: "ChatGPT",
-            targets: ["ChatGPT"]
+            targets: ["ChatGPT", "GPTSwiftSharedTypes"]
         ),
         .library(
             name: "GPT",
-            targets: ["GPT"]
+            targets: ["GPT", "GPTSwiftSharedTypes"]
         ),
         .library(
             name: "OpenAI",
-            targets: ["OpenAI"]
+            targets: ["OpenAI", "GPTSwiftSharedTypes"]
         )
     ],
     dependencies: [
@@ -39,6 +39,7 @@ let package = Package(
             name: "ChatGPT",
             dependencies: [
                 "Base",
+                "GPTSwiftSharedTypes",
                 .product(name: "Get", package: "Get")
             ]
         ),
@@ -46,6 +47,7 @@ let package = Package(
             name: "GPT",
             dependencies: [
                 "Base",
+                "GPTSwiftSharedTypes",
                 .product(name: "Get", package: "Get")
             ]
         ),
@@ -53,9 +55,13 @@ let package = Package(
             name: "OpenAI",
             dependencies: [
                 "Base",
+                "GPTSwiftSharedTypes",
                 .product(name: "Get", package: "Get")
             ]
+        ),
+        .target(
+            name: "GPTSwiftSharedTypes",
+            dependencies: []
         )
-
     ]
 )

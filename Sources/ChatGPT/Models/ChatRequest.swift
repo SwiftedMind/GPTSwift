@@ -81,8 +81,7 @@ public struct ChatRequest: Codable {
         presencePenalty: Double? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Double]? = nil,
-        user: String? = nil,
-        stream: Bool = false
+        user: String? = nil
     ) {
         self.model = model.rawValue
         self.messages = messages
@@ -94,7 +93,25 @@ public struct ChatRequest: Codable {
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
         self.user = user
-        self.stream = stream
+        self.stream = false
+    }
+
+    static func streamed(model: ChatGPTModel, messages: [ChatMessage]) -> Self {
+        var request = ChatRequest(model: model, messages: messages)
+        request.stream = true
+        return request
+    }
+
+    public static func gpt3() -> ChatRequest {
+        .init(model: .gpt3)
+    }
+
+    public static func gpt4() -> ChatRequest {
+        .init(model: .gpt4)
+    }
+
+    public static func gpt4LargeContext() -> ChatRequest {
+        .init(model: .gpt4LargeContext)
     }
 
     public enum CodingKeys: String, CodingKey {

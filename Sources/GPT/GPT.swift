@@ -56,7 +56,7 @@ public class GPT {
         let request = Request<CompletionResponse>(
             path: API.v1Completion,
             method: .post,
-            body: CompletionRequest(model: usingModel, prompts: userPrompt)
+            body: CompletionRequest(model: usingModel, prompt: userPrompt)
         )
 
         return try await client.send(request).value
