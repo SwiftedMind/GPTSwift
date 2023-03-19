@@ -1,6 +1,6 @@
 <picture>
-  <source width="150px" media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/7083109/224795534-47eaf18c-2032-48a9-a453-3dba6fbd7699.png">
-  <img width="150px" alt="GPTSwift Logo. Light: 'Light Mode' Dark: 'Dark Mode'" src="https://user-images.githubusercontent.com/7083109/224795540-5a1938ed-b829-40d3-aa67-3a51fa5de904.png">
+  <source width="150px" media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/7083109/226196409-dc77e5ef-4036-482f-93f1-6f83b800b088.png">
+  <img width="150px" alt="GPTSwift Logo. Light: 'Light Mode' Dark: 'Dark Mode'" srchttps://user-images.githubusercontent.com/7083109/226196411-2913b92f-e993-4ad2-8da9-79ac63f237b3.png">
 </picture>
 
 # GPTSwift
@@ -8,7 +8,7 @@
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftedMind%2FGPTSwift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/SwiftedMind/GPTSwift)
 ![GitHub](https://img.shields.io/github/license/SwiftedMind/GPTSwift)
 
-GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is completely written in Swift. Currently, only ChatGPT's API is supported.
+GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is completely written in Swift.
 
 Using GPTSwift is easy:
 
