@@ -23,6 +23,7 @@
 import Foundation
 import Get
 import Base
+import GPTSwiftSharedTypes
 
 /// A simple wrapper around the API for OpenAI's GPT.
 public class GPT {
@@ -48,6 +49,15 @@ public class GPT {
         self.streamedAnswer = .init(client: client, apiKey: apiKey, defaultModel: defaultModel)
     }
 
+    /// Generates a completion for the given user prompt using the specified model or the default model.
+    ///
+    /// This method is a convenience method for the "Create completion" OpenAI API endpoint.
+    ///
+    /// - Parameter userPrompt: The prompt to complete.
+    /// - Parameter model: The GPT model to use for generating the completion. Defaults to `.default`.
+    ///
+    /// - Returns: A `CompletionResponse` object containing the generated completion.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
     public func complete(
         _ userPrompt: String,
         model: GPTModel = .default
@@ -59,6 +69,43 @@ public class GPT {
             body: CompletionRequest(model: usingModel, prompt: userPrompt)
         )
 
-        return try await client.send(request).value
+        return try await send(request: request)
+    }
+
+    /// Generates a completion for the given `CompletionRequest`.
+    ///
+    /// This method provides full control over the completion request and corresponds to the "Create completion" OpenAI API endpoint.
+    ///
+    /// - Parameter completionRequest: A `CompletionRequest` object containing the details of the completion request.
+    ///
+    /// - Returns: A `CompletionResponse` object containing the generated completion.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
+    public func complete(request completionRequest: CompletionRequest) async throws -> CompletionResponse {
+        let request = Request<CompletionResponse>(
+            path: API.v1Completion,
+            method: .post,
+            body: completionRequest
+        )
+
+        return try await send(request: request)
+    }
+
+    /// Sends the request, catches all errors and replaces them with a `GPTSwiftError`. If successful, it returns the response value.
+    /// - Parameter request: The request to send.
+    /// - Returns: The response object, already decoded.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code. 
+    private func send<Response: Codable>(request: Request<Response>) async throws -> Response {
+        do {
+            return try await client.send(request).value
+        } catch let error as APIError {
+            switch error {
+            case let .unacceptableStatusCode(int) where int == 401:
+                throw GPTSwiftError.unauthorized
+            default:
+                throw GPTSwiftError.requestFailed
+            }
+        } catch {
+            throw GPTSwiftError.requestFailed
+        }
     }
 }

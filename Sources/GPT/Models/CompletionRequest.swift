@@ -23,7 +23,7 @@
 import Foundation
 import Base
 
-public struct CompletionRequest: Codable {
+public struct CompletionRequest {
 
     /// The model to use.
     ///
@@ -33,6 +33,7 @@ public struct CompletionRequest: Codable {
     /// The prompt for the request.
     public var prompt: String
 
+    /// The suffix that comes after a completion.
     public var suffix: String?
 
     /// The maximum number of tokens allowed for the response. If this is `nil`, it will default to allow the maximum number of tokens (4096 - message tokens). This does not mean, that all answers will generate that many tokens.
@@ -65,6 +66,7 @@ public struct CompletionRequest: Codable {
     /// Should be a number between `-2.0` and `2.0`.
     public var frequencyPenalty: Double?
 
+    /// Generates n results server-side, where n is the provided value, and returns the one with the highest log probability per token.
     public var bestOf: Int?
 
     /// Modifies the likelihood of specified tokens appearing in the answer.
@@ -113,13 +115,26 @@ public struct CompletionRequest: Codable {
         self.stream = false
     }
 
+    /// Convenience initializer that sets the model to `davinci` and configures the request with the provided closure.
+    /// - Parameters:
+    ///   - prompt: The prompt for the request.
+    ///   - configure: the configuration.
+    /// - Returns: A configured instance of `CompletionRequest`.
+    public static func davinci(prompt: String, configuration configure: ((_ request: inout CompletionRequest) -> Void)? = nil) -> CompletionRequest {
+        var request = CompletionRequest(model: .davinci, prompt: prompt)
+        configure?(&request)
+        return request
+    }
+
     static func streamed(model: GPTModel, prompt: String) -> Self {
         var request = CompletionRequest(model: model, prompt: prompt)
         request.stream = true
         return request
     }
+}
 
-    public enum CodingKeys: String, CodingKey {
+extension CompletionRequest: Codable {
+    enum CodingKeys: String, CodingKey {
         case model
         case prompt
         case suffix
@@ -138,4 +153,3 @@ public struct CompletionRequest: Codable {
         case user
     }
 }
-

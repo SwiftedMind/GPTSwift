@@ -91,7 +91,7 @@ public class ChatGPT {
     public func ask(
         messages: [ChatMessage],
         model: ChatGPTModel = .default
-    ) async throws -> ChatResponse {
+    ) async throws -> String {
         let usingModel = model is DefaultChatGPTModel ? defaultModel : model
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
@@ -99,13 +99,18 @@ public class ChatGPT {
             body: ChatRequest(model: usingModel, messages: messages)
         )
 
-        return try await send(request: request)
+        let response = try await send(request: request)
+        guard let answer = response.choices.first?.message.content else {
+            throw GPTSwiftError.other(CustomError.couldNotParseAnswer)
+        }
+
+        return answer
     }
 
     /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
     /// - Parameter request: The request.
     /// - Returns: The response.
-    public func ask(with request: ChatRequest) async throws -> ChatResponse {
+    public func ask(request: ChatRequest) async throws -> ChatResponse {
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
             method: .post,

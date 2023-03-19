@@ -37,6 +37,14 @@ extension GPT {
             self.defaultModel = defaultModel
         }
 
+        /// Generates a completion for the given user prompt using the specified model or the default model, streaming the response token by token.
+        ///
+        /// This method is a convenience method for the "Create completion" OpenAI API endpoint with the `stream` option enabled.
+        ///
+        /// - Parameter userPrompt: The prompt to complete.
+        /// - Parameter model: The GPT model to use for generating the completion. Defaults to `.default`.
+        /// - Returns: An `AsyncThrowingStream` of `String` objects representing tokens in the generated completion.
+        /// - Throws: A `Swift.Error` if the request fails or the server returns an unauthorized status code.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func complete(
             _ userPrompt: String,
@@ -48,14 +56,20 @@ extension GPT {
                 prompt: userPrompt
             )
 
-            return try await complete(with: completionRequest)
+            return try await complete(request: completionRequest)
         }
 
-        /// Ask GPT something by providing a request object, giving you full control over the request's configuration.
-        /// - Parameter completionRequest: The request.
-        /// - Returns: The response.
+        /// Generates a completion for the given `CompletionRequest`, streaming the response token by token.
+        ///
+        /// This method provides full control over the completion request and corresponds to the "Create completion" OpenAI API endpoint with the `stream` option enabled.
+        ///
+        /// - Parameter completionRequest: A `CompletionRequest` object containing the details of the completion request.
+        ///
+        /// - Returns: An `AsyncThrowingStream` of `String` objects representing tokens in the generated completion.
+        /// - Throws: A `Swift.Error` if the request fails or the server returns an unauthorized status code.
+
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-        public func complete(with completionRequest: CompletionRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
+        public func complete(request completionRequest: CompletionRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
             addHeaders(to: &urlRequest, apiKey: apiKey)

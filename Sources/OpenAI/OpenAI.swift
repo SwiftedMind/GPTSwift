@@ -23,12 +23,20 @@
 import Foundation
 import Get
 import Base
+import GPTSwiftSharedTypes
 
+/// A class for interacting with the OpenAI API to fetch information about available models and retrieve specific models.
 public class OpenAI {
 
+    /// The API client used for making API requests.
     private let client: APIClient
+
+    /// The API client request handler used for managing API request configurations.
     private let apiClientRequestHandler: APIClientRequestHandler
 
+    /// Initializes a new instance of the OpenAI class with the provided API key.
+    ///
+    /// - Parameter apiKey: The API key used for authentication when making API requests.
     public init(apiKey: String) {
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
@@ -36,53 +44,44 @@ public class OpenAI {
         }
     }
 
+    /// Asynchronously fetches a list of available models from the OpenAI API.
+    ///
+    /// This method corresponds to the "List models" API endpoint.
+    ///
+    /// - Returns: An array of `ModelData` objects representing the available models.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
     public func availableModels() async throws -> [ModelData] {
         let request = Request<ModelListResponse>(path: API.v1Models)
-        do {
-            return try await client.send(request).value.data
-        } catch let error as APIError {
-            switch error {
-            case let .unacceptableStatusCode(int) where int == 401:
-                throw Error.unauthorized
-            default:
-                throw Error.requestFailed
-            }
-        }
-        catch {
-            throw Error.requestFailed
-        }
+        return try await send(request: request).data
     }
 
+    /// Asynchronously retrieves a specific model from the OpenAI API using the provided model ID.
+    ///
+    /// This method corresponds to the "Retrieve model" API endpoint.
+    ///
+    /// - Parameter id: The ID of the model to retrieve.
+    /// - Returns: A `ModelData` object representing the requested model.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
     public func model(withId id: String) async throws -> ModelData {
         let request = Request<ModelData>(path: API.v1Model(withId: id))
+        return try await send(request: request)
+    }
+
+    /// Sends the request, catches all errors and replaces them with a `GPTSwiftError`. If successful, it returns the response value.
+    /// - Parameter request: The request to send.
+    /// - Returns: The response object, already decoded.
+    private func send<Response: Codable>(request: Request<Response>) async throws -> Response {
         do {
             return try await client.send(request).value
         } catch let error as APIError {
             switch error {
             case let .unacceptableStatusCode(int) where int == 401:
-                throw Error.unauthorized
+                throw GPTSwiftError.unauthorized
             default:
-                throw Error.requestFailed
+                throw GPTSwiftError.requestFailed
             }
-        }
-        catch {
-            throw Error.requestFailed
-        }
-    }
-}
-
-public extension OpenAI {
-    enum Error: Swift.Error {
-        case unauthorized
-        case requestFailed
-
-        public var errorDescription: String? {
-            switch self {
-            case .unauthorized:
-                return "Request returned 401. Have you provided the correct api key?"
-            case .requestFailed:
-                return "The request failed."
-            }
+        } catch {
+            throw GPTSwiftError.requestFailed
         }
     }
 }

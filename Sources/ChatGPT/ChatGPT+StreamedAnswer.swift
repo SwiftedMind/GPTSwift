@@ -61,7 +61,7 @@ extension ChatGPT {
                 messages: messages
             )
 
-            return try await ask(with: chatRequest)
+            return try await ask(request: chatRequest)
         }
 
         /// Ask ChatGPT something by sending multiple messages without any special configuration.
@@ -75,14 +75,14 @@ extension ChatGPT {
         ) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let usingModel = model is DefaultChatGPTModel ? defaultModel : model
             let chatRequest = ChatRequest.streamed(model: usingModel, messages: messages)
-            return try await ask(with: chatRequest)
+            return try await ask(request: chatRequest)
         }
 
         /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
         /// - Parameter chatRequest: The request.
         /// - Returns: The response.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
-        public func ask(with chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
+        public func ask(request chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
             addHeaders(to: &urlRequest, apiKey: apiKey)

@@ -27,16 +27,13 @@ import Base
 ///
 /// For more information, see the [OpenAI documentation](https://platform.openai.com/docs/guides/chat/introduction).
 /// And for detailed information about the parameters, see the [API documentation](https://platform.openai.com/docs/api-reference/chat).
-public struct ChatRequest: Codable {
+public struct ChatRequest {
 
     /// The model to use.
     public var model: String
 
     /// The messages for the request.
     public var messages: [ChatMessage]
-
-    /// The maximum number of tokens allowed for the response. If this is `nil`, it will default to allow the maximum number of tokens (4096 - message tokens). This does not mean, that all answers will generate that many tokens.
-    public var maximumTokens: Int?
 
     /// The temperature for the request. This determines the randomness of the response.
     public var temperature: Double?
@@ -48,6 +45,15 @@ public struct ChatRequest: Codable {
     ///
     /// The default is 1.
     public var numberOfAnswers: Double?
+
+    /// A boolean flag indicating if the answers should be streamed.
+    var stream: Bool
+
+    /// Up to 4 sequences where the API will stop generating further tokens.
+    public var stop: [String]?
+
+    /// The maximum number of tokens allowed for the response. If this is `nil`, it will default to allow the maximum number of tokens (4096 - message tokens). This does not mean, that all answers will generate that many tokens.
+    public var maximumTokens: Int?
 
     /// A mechanism to penalize the occurrence of new tokens based on whether they appear in the text so far.
     ///
@@ -67,9 +73,6 @@ public struct ChatRequest: Codable {
     /// An optional user identifier to help detect misuse of the API.
     public var user: String?
 
-    /// A boolean flag indicating if the answers should be streamed.
-    var stream: Bool
-
     /// A chat request is the main interface to ChatGPT's API.
     public init(
         model: ChatGPTModel = .gpt3,
@@ -78,6 +81,7 @@ public struct ChatRequest: Codable {
         temperature: Double? = nil,
         topP: Double? = nil,
         numberOfAnswers: Double? = nil,
+        stop: [String]? = nil,
         presencePenalty: Double? = nil,
         frequencyPenalty: Double? = nil,
         logitBias: [String : Double]? = nil,
@@ -89,6 +93,7 @@ public struct ChatRequest: Codable {
         self.temperature = temperature
         self.topP = topP
         self.numberOfAnswers = numberOfAnswers
+        self.stop = stop
         self.presencePenalty = presencePenalty
         self.frequencyPenalty = frequencyPenalty
         self.logitBias = logitBias
@@ -96,27 +101,49 @@ public struct ChatRequest: Codable {
         self.stream = false
     }
 
+    /// Convenience initializer that sets the model to `gpt3` and configures the request with the provided closure.
+    /// - Parameters:
+    ///   - configure: the configuration.
+    /// - Returns: A configured instance of `ChatRequest`.
+    public static func gpt3(configuration configure: ((_ request: inout ChatRequest) -> Void)? = nil) -> ChatRequest {
+        var request = ChatRequest(model: .gpt3)
+        configure?(&request)
+        return request
+    }
+
+    /// Convenience initializer that sets the model to `gpt4` and configures the request with the provided closure.
+    /// - Parameters:
+    ///   - configure: the configuration.
+    /// - Returns: A configured instance of `ChatRequest`.
+    public static func gpt4(configuration configure: ((_ request: inout ChatRequest) -> Void)? = nil) -> ChatRequest {
+        var request = ChatRequest(model: .gpt4)
+        configure?(&request)
+        return request
+    }
+
+    /// Convenience initializer that sets the model to `gpt4LargeContext` and configures the request with the provided closure.
+    /// - Parameters:
+    ///   - configure: the configuration.
+    /// - Returns: A configured instance of `ChatRequest`.
+    public static func gpt4LargeContext(configuration configure: ((_ request: inout ChatRequest) -> Void)? = nil) -> ChatRequest {
+        var request = ChatRequest(model: .gpt4LargeContext)
+        configure?(&request)
+        return request
+    }
+
     static func streamed(model: ChatGPTModel, messages: [ChatMessage]) -> Self {
         var request = ChatRequest(model: model, messages: messages)
         request.stream = true
         return request
     }
+}
 
-    public static func gpt3() -> ChatRequest {
-        .init(model: .gpt3)
-    }
+extension ChatRequest: Codable {
 
-    public static func gpt4() -> ChatRequest {
-        .init(model: .gpt4)
-    }
-
-    public static func gpt4LargeContext() -> ChatRequest {
-        .init(model: .gpt4LargeContext)
-    }
-
-    public enum CodingKeys: String, CodingKey {
+    enum CodingKeys: String, CodingKey {
         case model
         case messages
+        case stop
         case maximumTokens = "max_tokens"
         case temperature
         case topP = "top_p"
@@ -128,4 +155,3 @@ public struct ChatRequest: Codable {
         case user
     }
 }
-
