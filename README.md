@@ -52,6 +52,7 @@ Alternatively, if you want to add the package to an Xcode project, go to `File` 
 ## Usage
 
 GPTSwift is just a lightweight wrapper around the API. Here are a few examples:
+
 ### ChatGPT
 
 ```swift
@@ -83,7 +84,7 @@ func askChatGPT() async throws {
     fullRequest.temperature = 0.8
     fullRequest.numberOfAnswers = 2
 
-    let thirdResponse = try await chatGPT.ask(with: fullRequest)
+    let thirdResponse = try await chatGPT.ask(request: fullRequest)
     print(thirdResponse.choices.map(\.message))
 }
 ```
@@ -109,7 +110,7 @@ func askChatGPT() async throws {
 }
 ```
 
-For more information about the API, you can look at OpenAI's documentation:
+For more information about the ChatGPT API, you can look at OpenAI's documentation:
 - [ChatGPT API Introduction](https://platform.openai.com/docs/guides/chat/chat-completions-beta)
 - [ChatGPT API documentation](https://platform.openai.com/docs/api-reference/chat/create)
 
