@@ -74,7 +74,7 @@ func askChatGPT() async throws {
             ChatMessage(role: .user, content: "Do you actually like playing fetch?")
         ]
     )
-    print(secondResponse.choices.map(\.message))
+    print(secondResponse)
 
     // Full control
     var fullRequest = ChatRequest(
