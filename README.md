@@ -16,7 +16,7 @@ Using GPTSwift is easy:
 let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
 let answer = try await chatGPT.ask("What is the answer to life, the universe and everything in it?")
 
-// Stream the answers as they are generated
+// Stream the answers
 var streamedAnswer = ""
 for try await nextWord in try await chatGPT.streamedAnswer.ask("Tell me a story about birds") {
     streamedAnswer += nextWord
@@ -44,7 +44,7 @@ GPTSwift supports iOS 15+, macOS 12+, watchOS 8+ and tvOS 15+.
 The package is installed through the Swift Package Manager. Simply add the following line to your `Package.swift` dependencies:
 
 ```swift
-.package(url: "https://github.com/SwiftedMind/GPTSwift", from: "2.0.0")
+.package(url: "https://github.com/SwiftedMind/GPTSwift", from: "3.0.0")
 ```
 
 Alternatively, if you want to add the package to an Xcode project, go to `File` > `Add Packages...` and enter the URL "https://github.com/SwiftedMind/GPTSwift" into the search field at the top. GPTSwift should appear in the list. Select it and click "Add Package" in the bottom right.
