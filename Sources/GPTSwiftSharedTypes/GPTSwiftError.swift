@@ -19,8 +19,47 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 
-public enum GPTSwiftError: Swift.Error {
-    case unauthorized
-    case requestFailed
-    case other(Swift.Error)
+public struct GPTSwiftError: Swift.Error {
+
+    public static var unauthorized: Self {
+        .init(kind: .unauthorized)
+    }
+
+    public static var requestFailed: Self {
+        .init(kind: .requestFailed)
+    }
+
+    public static var responseParsingFailed: Self {
+        .init(kind: .responseParsingFailed)
+    }
+
+    public static func other(_ error: Swift.Error) -> Self {
+        .init(kind: .other(error))
+    }
+
+    enum Kind {
+        case unauthorized
+        case requestFailed
+        case responseParsingFailed
+        case other(Swift.Error)
+    }
+
+    let kind: Kind
+
+    init(kind: Kind) {
+        self.kind = kind
+    }
+
+    public var localizedDescription: String {
+        switch kind {
+        case .unauthorized:
+            return "Unauthorized request. Have you provided the correct api key?"
+        case .requestFailed:
+            return "Something went wrong with the request."
+        case .responseParsingFailed:
+            return "Something went wrong with parsing the response."
+        case .other(let error):
+            return "An unknown error occurred: \(error)"
+        }
+    }
 }

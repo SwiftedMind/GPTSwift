@@ -118,7 +118,7 @@ extension ChatGPT {
                             continuation.yield(message)
                         }
                     } catch {
-                        throw GPTSwiftError.requestFailed
+                        throw GPTSwiftError.responseParsingFailed
                     }
 
                     continuation.finish()

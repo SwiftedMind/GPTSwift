@@ -81,7 +81,7 @@ public class OpenAI {
                 throw GPTSwiftError.requestFailed
             }
         } catch {
-            throw GPTSwiftError.requestFailed
+            throw GPTSwiftError.responseParsingFailed
         }
     }
 }

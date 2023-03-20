@@ -87,7 +87,7 @@ public class ChatGPT {
     /// Ask ChatGPT something by sending multiple messages without any special configuration.
     /// - Parameter messages: The chat messages.
     /// - Parameter model: The model that should be used.
-    /// - Returns: The response.
+    /// - Returns: The response as string.
     public func ask(
         messages: [ChatMessage],
         model: ChatGPTModel = .default
@@ -134,7 +134,7 @@ public class ChatGPT {
                 throw GPTSwiftError.requestFailed
             }
         } catch {
-            throw GPTSwiftError.requestFailed
+            throw GPTSwiftError.responseParsingFailed
         }
     }
 }
