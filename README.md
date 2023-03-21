@@ -29,10 +29,10 @@ An example project can be found here: [GPTPlayground](https://github.com/Swifted
 
 ## Content
 
-- [Getting Started](#getting-started)
+- [**Getting Started**](#getting-started)
   - [Requirements](#requirements)
   - [Installation](#installation)
-- [Usage](#usage)
+- [**How to Use**](#how-to-use)
 - [License](#license)
 
 ## Getting Started
@@ -51,7 +51,7 @@ The package is installed through the Swift Package Manager. Simply add the follo
 
 Alternatively, if you want to add the package to an Xcode project, go to `File` > `Add Packages...` and enter the URL "https://github.com/SwiftedMind/GPTSwift" into the search field at the top. GPTSwift should appear in the list. Select it and click "Add Package" in the bottom right.
 
-## Usage
+## How to Use
 
 GPTSwift is just a lightweight wrapper around the API that abstracts away all the unnecessary details of calling endpoints and handling requests and responses.
 
