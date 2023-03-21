@@ -1,6 +1,6 @@
 <picture>
   <source width="150px" media="(prefers-color-scheme: dark)" srcset="https://user-images.githubusercontent.com/7083109/226196409-dc77e5ef-4036-482f-93f1-6f83b800b088.png">
-  <img width="150px" alt="GPTSwift Logo. Light: 'Light Mode' Dark: 'Dark Mode'" srchttps://user-images.githubusercontent.com/7083109/226196411-2913b92f-e993-4ad2-8da9-79ac63f237b3.png">
+  <img width="150px" alt="GPTSwift Logo. Light: 'Light Mode' Dark: 'Dark Mode'" src="https://user-images.githubusercontent.com/7083109/226196411-2913b92f-e993-4ad2-8da9-79ac63f237b3.png">
 </picture>
 
 # GPTSwift
