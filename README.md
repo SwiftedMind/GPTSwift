@@ -180,7 +180,7 @@ func askGPT() async throws {
 
 ### OpenAI
 
-Finally, you can access the available models throught the `OpenAI` class.
+Finally, you can access the available models through the `OpenAI` class.
 
 ```swift
 import OpenAI
