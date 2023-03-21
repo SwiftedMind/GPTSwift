@@ -29,6 +29,7 @@ import Base
 public class ChatGPT {
 
     private let client: APIClient
+    private let apiKey: String
     private let apiClientRequestHandler: _APIClientRequestHandler
 
     private let defaultModel: ChatGPTModel
@@ -48,6 +49,7 @@ public class ChatGPT {
         defaultModel: ChatGPTModel = .gpt3,
         urlSessionConfiguration: URLSessionConfiguration? = nil
     ) {
+        self.apiKey = apiKey
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.defaultModel = defaultModel
         // TODO: Timeout increase options and more config of URLSession from outside?
@@ -65,6 +67,7 @@ public class ChatGPT {
     /// - Parameter systemPrompt: an optional system prompt to give GPT instructions on how to answer.
     /// - Parameter model: The model that should be used.
     /// - Returns: The response as string.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
     public func ask(
         _ userPrompt: String,
         withSystemPrompt systemPrompt: String? = nil,
@@ -87,7 +90,7 @@ public class ChatGPT {
 
         let response = try await send(request: request)
         guard let answer = response.choices.first?.message.content else {
-            throw GPTSwiftError.other(CustomError.couldNotParseAnswer)
+            throw GPTSwiftError.responseParsingFailed
         }
 
         return answer
@@ -97,6 +100,7 @@ public class ChatGPT {
     /// - Parameter messages: The chat messages.
     /// - Parameter model: The model that should be used.
     /// - Returns: The response as string.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
     public func ask(
         messages: [ChatMessage],
         model: ChatGPTModel = .default
@@ -110,7 +114,7 @@ public class ChatGPT {
 
         let response = try await send(request: request)
         guard let answer = response.choices.first?.message.content else {
-            throw GPTSwiftError.other(CustomError.couldNotParseAnswer)
+            throw GPTSwiftError.responseParsingFailed
         }
 
         return answer
@@ -119,6 +123,7 @@ public class ChatGPT {
     /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
     /// - Parameter request: The request.
     /// - Returns: The response.
+    /// - Throws: A `GPTSwiftError` if the request fails or the server returns an unauthorized status code.
     public func ask(request: ChatRequest) async throws -> ChatResponse {
         let request = Request<ChatResponse>(
             path: API.v1ChatCompletion,
@@ -127,6 +132,22 @@ public class ChatGPT {
         )
 
         return try await send(request: request)
+    }
+
+    /// Turns a chat request into a curl prompt that you can paste into a terminal.
+    ///
+    /// This might be useful for debugging to experimenting.
+    /// Taken from [Abhishek Maurya](https://gist.github.com/abhi21git/3dc611aab9e1cf5e5343ba4b58573596) and slightly adjusted.
+    /// - Parameters:
+    ///   - chatRequest: The request.
+    ///   - pretty: An option to make the curl prompt pretty.
+    ///   - formatOutput: An option that, if set, puts the response through `json_pp` to prettify the json object.
+    /// - Returns: The curl prompt.
+    public func curl(for chatRequest: ChatRequest, pretty: Bool = true, formatOutput: Bool = true) async throws -> String {
+        let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
+        var urlRequest = try await client.makeURLRequest(for: request)
+        _addHeaders(to: &urlRequest, apiKey: apiKey)
+        return urlRequest.curl(pretty: pretty, formatOutput: formatOutput)
     }
 
     /// Sends the request, catches all errors and replaces them with a `GPTSwiftError`. If successful, it returns the response value.
@@ -138,11 +159,5 @@ public class ChatGPT {
         } catch {
             throw _errorToGPTSwiftError(error)
         }
-    }
-}
-
-public extension ChatGPT {
-    enum CustomError: Error {
-        case couldNotParseAnswer
     }
 }

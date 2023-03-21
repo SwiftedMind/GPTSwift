@@ -29,6 +29,7 @@ import Base
 public class GPT {
 
     private let client: APIClient
+    private let apiKey: String
     private let apiClientRequestHandler: _APIClientRequestHandler
     private let defaultModel: GPTModel
 
@@ -46,6 +47,7 @@ public class GPT {
         defaultModel: GPTModel = .davinci,
         urlSessionConfiguration: URLSessionConfiguration? = nil
     ) {
+        self.apiKey = apiKey
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.defaultModel = defaultModel
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
@@ -96,6 +98,22 @@ public class GPT {
         )
 
         return try await send(request: request)
+    }
+
+    /// Turns a completion request into a curl prompt that you can paste into a terminal.
+    ///
+    /// This might be useful for debugging to experimenting.
+    /// Taken from [Abhishek Maurya](https://gist.github.com/abhi21git/3dc611aab9e1cf5e5343ba4b58573596) and slightly adjusted.
+    /// - Parameters:
+    ///   - completionRequest: The request.
+    ///   - pretty: An option to make the curl prompt pretty.
+    ///   - formatOutput: An option that, if set, puts the response through `json_pp` to prettify the json object.
+    /// - Returns: The curl prompt.
+    public func curl(for completionRequest: CompletionRequest, pretty: Bool = true, formatOutput: Bool = true) async throws -> String {
+        let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
+        var urlRequest = try await client.makeURLRequest(for: request)
+        _addHeaders(to: &urlRequest, apiKey: apiKey)
+        return urlRequest.curl(pretty: pretty, formatOutput: formatOutput)
     }
 
     /// Sends the request, catches all errors and replaces them with a `GPTSwiftError`. If successful, it returns the response value.

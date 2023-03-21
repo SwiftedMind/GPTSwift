@@ -29,7 +29,7 @@ public func _addHeaders(to request: inout URLRequest, apiKey: String) {
 }
 
 public class _APIClientRequestHandler: APIClientDelegate {
-    private let apiKey: String
+    public let apiKey: String
 
     public init(apiKey: String) {
         self.apiKey = apiKey

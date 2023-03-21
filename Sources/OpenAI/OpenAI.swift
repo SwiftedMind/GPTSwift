@@ -31,6 +31,9 @@ public class OpenAI {
     /// The API client used for making API requests.
     private let client: APIClient
 
+    /// The api key.
+    private let apiKey: String
+
     /// The API client request handler used for managing API request configurations.
     private let apiClientRequestHandler: _APIClientRequestHandler
 
@@ -42,6 +45,7 @@ public class OpenAI {
         apiKey: String,
         urlSessionConfiguration: URLSessionConfiguration? = nil
     ) {
+        self.apiKey = apiKey
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
@@ -72,6 +76,37 @@ public class OpenAI {
     public func model(withId id: String) async throws -> ModelData {
         let request = Request<ModelData>(path: API.v1Model(withId: id))
         return try await send(request: request)
+    }
+
+    /// Returns a usable curl prompt that you can paste into a terminal to receive all available models.
+    ///
+    /// This might be useful for debugging to experimenting.
+    /// Taken from [Abhishek Maurya](https://gist.github.com/abhi21git/3dc611aab9e1cf5e5343ba4b58573596) and slightly adjusted.
+    /// - Parameters:
+    ///   - pretty: An option to make the curl prompt pretty.
+    ///   - formatOutput: An option that, if set, puts the response through `json_pp` to prettify the json object.
+    /// - Returns: The curl prompt.
+    public func curlForAvailableModels(pretty: Bool = true, formatOutput: Bool = true) async throws -> String {
+        let request = Request<ModelListResponse>(path: API.v1Models)
+        var urlRequest = try await client.makeURLRequest(for: request)
+        _addHeaders(to: &urlRequest, apiKey: apiKey)
+        return urlRequest.curl(pretty: pretty, formatOutput: formatOutput)
+    }
+
+    /// Returns a usable curl prompt that you can paste into a terminal to receive the model with the given id.
+    ///
+    /// This might be useful for debugging to experimenting.
+    /// Taken from [Abhishek Maurya](https://gist.github.com/abhi21git/3dc611aab9e1cf5e5343ba4b58573596) and slightly adjusted.
+    /// - Parameters:
+    ///   - id: The model id.
+    ///   - pretty: An option to make the curl prompt pretty.
+    ///   - formatOutput: An option that, if set, puts the response through `json_pp` to prettify the json object.
+    /// - Returns: The curl prompt.
+    public func curlForModel(withId id: String, pretty: Bool = true, formatOutput: Bool = true) async throws -> String {
+        let request = Request<ModelData>(path: API.v1Model(withId: id))
+        var urlRequest = try await client.makeURLRequest(for: request)
+        _addHeaders(to: &urlRequest, apiKey: apiKey)
+        return urlRequest.curl(pretty: pretty, formatOutput: formatOutput)
     }
 
     /// Sends the request, catches all errors and replaces them with a `GPTSwiftError`. If successful, it returns the response value.

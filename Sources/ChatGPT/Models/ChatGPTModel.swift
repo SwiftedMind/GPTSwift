@@ -99,18 +99,21 @@ public extension ChatGPTModel where Self == CustomChatGPTModel {
 }
 
 public extension ChatGPTModel where Self == GPT3ChatGPTModel {
+    /// The GPT3 model descriptor.
     static var gpt3: GPT3ChatGPTModel {
         GPT3ChatGPTModel()
     }
 }
 
 public extension ChatGPTModel where Self == GPT4ChatGPTModel {
+    /// The GPT4 model descriptor.
     static var gpt4: GPT4ChatGPTModel {
         GPT4ChatGPTModel()
     }
 }
 
 public extension ChatGPTModel where Self == GPT4LargeContextChatGPTModel {
+    /// The GPT4 "Large Context" model descriptor.
     static var gpt4LargeContext: GPT4LargeContextChatGPTModel {
         GPT4LargeContextChatGPTModel()
     }

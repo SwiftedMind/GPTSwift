@@ -63,6 +63,7 @@ public extension GPTModel where Self == CustomGPTModel {
 }
 
 public extension GPTModel where Self == DavinciGPTModel {
+    /// The davinci model descriptor.
     static var davinci: DavinciGPTModel {
         DavinciGPTModel()
     }

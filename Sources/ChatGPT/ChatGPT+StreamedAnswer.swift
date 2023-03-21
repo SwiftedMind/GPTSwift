@@ -42,6 +42,7 @@ extension ChatGPT {
         /// - Parameter systemPrompt: An optional system prompt to give GPT instructions on how to answer.
         /// - Parameter model: The model that should be used.
         /// - Returns: The response.
+        /// - Throws: A `GPTSwiftError`.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func ask(
             _ userPrompt: String,
@@ -68,6 +69,7 @@ extension ChatGPT {
         /// - Parameter messages: The chat messages.
         /// - Parameter model: The model that should be used.
         /// - Returns: The response.
+        /// - Throws: A `GPTSwiftError`.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func ask(
             messages: [ChatMessage],
@@ -81,6 +83,7 @@ extension ChatGPT {
         /// Ask ChatGPT something by providing a chat request object, giving you full control over the request's configuration.
         /// - Parameter chatRequest: The request.
         /// - Returns: The response.
+        /// - Throws: A `GPTSwiftError`.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func ask(request chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
@@ -128,6 +131,26 @@ extension ChatGPT {
             } catch {
                 throw _errorToGPTSwiftError(error)
             }
+        }
+
+        /// Turns a chat request into a curl prompt that you can paste into a terminal.
+        ///
+        /// This method will change the provided chat request to include a `stream: true` argument.
+        /// The rest of the request will not be changed.
+        ///
+        /// This might be useful for debugging to experimenting.
+        /// Taken from [Abhishek Maurya](https://gist.github.com/abhi21git/3dc611aab9e1cf5e5343ba4b58573596) and slightly adjusted.
+        /// - Parameters:
+        ///   - chatRequest: The request.
+        ///   - pretty: An option to make the curl prompt pretty.
+        /// - Returns: The curl prompt.
+        public func curl(for chatRequest: ChatRequest, pretty: Bool = true) async throws -> String {
+            var chatRequest = chatRequest
+            chatRequest.stream = true
+            let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
+            var urlRequest = try await client.makeURLRequest(for: request)
+            _addHeaders(to: &urlRequest, apiKey: apiKey)
+            return urlRequest.curl(pretty: pretty, formatOutput: false)
         }
     }
 }

@@ -67,7 +67,6 @@ extension GPT {
         ///
         /// - Returns: An `AsyncThrowingStream` of `String` objects representing tokens in the generated completion.
         /// - Throws: A `Swift.Error` if the request fails or the server returns an unauthorized status code.
-
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func complete(request completionRequest: CompletionRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
@@ -110,6 +109,26 @@ extension GPT {
             } catch {
                 throw _errorToGPTSwiftError(error)
             }
+        }
+
+        /// Turns a completion request into a curl prompt that you can paste into a terminal.
+        ///
+        /// This method will change the provided completion request to include a `stream: true` argument.
+        /// The rest of the request will not be changed.
+        ///
+        /// This might be useful for debugging to experimenting.
+        /// Taken from [Abhishek Maurya](https://gist.github.com/abhi21git/3dc611aab9e1cf5e5343ba4b58573596) and slightly adjusted.
+        /// - Parameters:
+        ///   - completionRequest: The request.
+        ///   - pretty: An option to make the curl prompt pretty.
+        /// - Returns: The curl prompt.
+        public func curl(for completionRequest: CompletionRequest, pretty: Bool = true) async throws -> String {
+            var completionRequest = completionRequest
+            completionRequest.stream = true
+            let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
+            var urlRequest = try await client.makeURLRequest(for: request)
+            _addHeaders(to: &urlRequest, apiKey: apiKey)
+            return urlRequest.curl(pretty: pretty, formatOutput: false)
         }
     }
 }
