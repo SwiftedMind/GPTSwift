@@ -3,12 +3,12 @@
 ## 3.0.0
 
 > **Note**
-> Fun Fact: Parts of the documentation for this update have been written by GPT-4! I have proof-read them to make sure everything is fine but GPT-4 just did it perfectly.
+> Fun Fact: Parts of the documentation for this update have been written by GPT4! I have proof-read them to make sure everything is fine but GPT4 just did it perfectly.
 
 ### Added
 
-- Added GPT-4 models (also including stable and large context versions) to `ChatGPT`. If you have access, enjoy!
-- Added `GPT`, which is a wrapper around the completion API for GPT-3. Also supports streaming the answers.
+- Added GPT4 models (also including stable and large context versions) to `ChatGPT`. If you have access, enjoy!
+- Added `GPT`, which is a wrapper around the completion API for GPT3. Also supports streaming the answers.
 - Added `OpenAI`, which is a wrapper around two general OpenAI endpoints that list available models.
 - Added more robust and convenient error handling. All errors are now exposed through [`GPTSwiftError`](https://github.com/SwiftedMind/GPTSwift/blob/main/Sources/GPTSwiftSharedTypes/GPTSwiftError.swift).
   - OpenAI error messages are now also passed through, which is useful to debug invalid requests (like out-of-bounds values).

@@ -52,7 +52,6 @@ public class ChatGPT {
         self.apiKey = apiKey
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.defaultModel = defaultModel
-        // TODO: Timeout increase options and more config of URLSession from outside?
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
             if let urlSessionConfiguration {
