@@ -72,39 +72,43 @@ extension GPT {
         public func complete(request completionRequest: CompletionRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
             let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
-            addHeaders(to: &urlRequest, apiKey: apiKey)
+            _addHeaders(to: &urlRequest, apiKey: apiKey)
 
-            let (result, response) = try await client.session.bytes(for: urlRequest)
+            do {
+                let (result, response) = try await client.session.bytes(for: urlRequest)
 
-            guard let response = response as? HTTPURLResponse else {
-                throw GPTSwiftError.requestFailed
-            }
-
-            guard response.statusCode.isStatusCodeOkay else {
-                throw GPTSwiftError.requestFailed
-            }
-
-            return AsyncThrowingStream { continuation in
-                Task {
-                    do {
-                        for try await line in result.lines {
-                            guard let chatResponse = line.asStreamedResponse else {
-                                break
-                            }
-
-                            guard let message = chatResponse.choices.first?.text else {
-                                continue
-                            }
-
-                            // Yield next token
-                            continuation.yield(message)
-                        }
-                    } catch {
-                        throw GPTSwiftError.responseParsingFailed
-                    }
-
-                    continuation.finish()
+                guard let response = response as? HTTPURLResponse else {
+                    throw GPTSwiftError.responseParsingFailed
                 }
+
+                guard response.statusCode.isStatusCodeOkay else {
+                    throw GPTSwiftError.requestFailed(message: "Response status code was unacceptable: \(response.statusCode)")
+                }
+
+                return AsyncThrowingStream { continuation in
+                    Task {
+                        do {
+                            for try await line in result.lines {
+                                guard let chatResponse = line.asStreamedResponse else {
+                                    break
+                                }
+
+                                guard let message = chatResponse.choices.first?.text else {
+                                    continue
+                                }
+
+                                // Yield next token
+                                continuation.yield(message)
+                            }
+                        } catch {
+                            throw GPTSwiftError.responseParsingFailed
+                        }
+
+                        continuation.finish()
+                    }
+                }
+            } catch {
+                throw _errorToGPTSwiftError(error)
             }
         }
     }

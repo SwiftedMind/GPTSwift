@@ -32,6 +32,7 @@ let package = Package(
         .target(
             name: "Base",
             dependencies: [
+                "GPTSwiftSharedTypes",
                 .product(name: "Get", package: "Get")
             ]
         ),

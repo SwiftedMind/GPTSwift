@@ -73,30 +73,3 @@ public struct ModelData: Codable {
         }
     }
 }
-/*
- {
- "id": "babbage-code-search-text",
- "object": "model",
- "created": 1651172509,
- "owned_by": "openai-dev",
- "permission": [
- {
- "id": "modelperm-Lftf8H4ZPDxNxVs0hHPJBUoe",
- "object": "model_permission",
- "created": 1669085863,
- "allow_create_engine": false,
- "allow_sampling": true,
- "allow_logprobs": true,
- "allow_search_indices": true,
- "allow_view": true,
- "allow_fine_tuning": false,
- "organization": "*",
- "group": null,
- "is_blocking": false
- }
- ],
- "root": "babbage-code-search-text",
- "parent": null
- },
-
- */

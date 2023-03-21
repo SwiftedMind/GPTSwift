@@ -72,14 +72,11 @@ extension CompletionResponse {
 
         /// The actual message of the answer.
         public var text: String
-//        public var text: CompletionPrompt
 
         /// An optional reason for the termination of the message.
         ///
         /// For example, this can be "stop" to indicate GPT considers the answer as done.
         public var finishReason: String?
-
-//        public var logProbabilities
 
         /// The index of the message in the messages array of `CompletionResponse`.
         public var index: Int

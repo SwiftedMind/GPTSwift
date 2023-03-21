@@ -21,13 +21,14 @@
 
 import Foundation
 import Get
+import GPTSwiftSharedTypes
 
-public func addHeaders(to request: inout URLRequest, apiKey: String) {
+public func _addHeaders(to request: inout URLRequest, apiKey: String) {
     request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 }
 
-public class APIClientRequestHandler: APIClientDelegate {
+public class _APIClientRequestHandler: APIClientDelegate {
     private let apiKey: String
 
     public init(apiKey: String) {
@@ -35,6 +36,32 @@ public class APIClientRequestHandler: APIClientDelegate {
     }
 
     public func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
-        addHeaders(to: &request, apiKey: apiKey)
+        _addHeaders(to: &request, apiKey: apiKey)
+    }
+
+    public func client(_ client: APIClient, validateResponse response: HTTPURLResponse, data: Data, task: URLSessionTask) throws {
+        if (200...299).contains(response.statusCode) { return }
+
+        // If we can decode an error object from OpenAI, we use that as the error, as it contains useful information.
+        if let openAIErrorDTO = try? JSONDecoder().decode(OpenAIErrorDTO.self, from: data) {
+            throw openAIErrorDTO.error
+        }
     }
 }
+
+/// Converts a `Swift.Error` object to a `GPTSwiftError`.
+/// - Parameter error: The error to convert.
+/// - Returns: A `GPTSwiftError`.
+public func _errorToGPTSwiftError(_ error: Swift.Error) -> GPTSwiftError {
+    switch error {
+    case let openAIError as OpenAIError:
+        return .openAIError(openAIError)
+    case let apiError as APIError:
+        return .requestFailed(message: apiError.localizedDescription)
+    case let urlError as URLError:
+        return .urlError(urlError)
+    default:
+        return .other(error)
+    }
+}
+

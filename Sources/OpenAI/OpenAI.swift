@@ -23,7 +23,7 @@
 import Foundation
 import Get
 import Base
-import GPTSwiftSharedTypes
+@_exported import GPTSwiftSharedTypes
 
 /// A class for interacting with the OpenAI API to fetch information about available models and retrieve specific models.
 public class OpenAI {
@@ -32,15 +32,22 @@ public class OpenAI {
     private let client: APIClient
 
     /// The API client request handler used for managing API request configurations.
-    private let apiClientRequestHandler: APIClientRequestHandler
+    private let apiClientRequestHandler: _APIClientRequestHandler
 
     /// Initializes a new instance of the OpenAI class with the provided API key.
     ///
     /// - Parameter apiKey: The API key used for authentication when making API requests.
-    public init(apiKey: String) {
+    /// - Parameter urlSessionConfiguration: An optional URL session configuration object.
+    public init(
+        apiKey: String,
+        urlSessionConfiguration: URLSessionConfiguration? = nil
+    ) {
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
+            if let urlSessionConfiguration {
+                configuration.sessionConfiguration = urlSessionConfiguration
+            }
         }
     }
 
@@ -73,15 +80,8 @@ public class OpenAI {
     private func send<Response: Codable>(request: Request<Response>) async throws -> Response {
         do {
             return try await client.send(request).value
-        } catch let error as APIError {
-            switch error {
-            case let .unacceptableStatusCode(int) where int == 401:
-                throw GPTSwiftError.unauthorized
-            default:
-                throw GPTSwiftError.requestFailed
-            }
         } catch {
-            throw GPTSwiftError.responseParsingFailed
+            throw _errorToGPTSwiftError(error)
         }
     }
 }

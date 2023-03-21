@@ -23,13 +23,13 @@
 import Foundation
 import Get
 import Base
-import GPTSwiftSharedTypes
+@_exported import GPTSwiftSharedTypes
 
 /// A simple and easy to use wrapper around the ChatGPT API from OpenAI, with support for GPT 3.5 turbo as well as GPT 4 and its large context variant.
 public class ChatGPT {
 
     private let client: APIClient
-    private let apiClientRequestHandler: APIClientRequestHandler
+    private let apiClientRequestHandler: _APIClientRequestHandler
 
     private let defaultModel: ChatGPTModel
 
@@ -42,11 +42,20 @@ public class ChatGPT {
     ///
     /// - Parameter apiKey: The api key you can generate in your account page on OpenAI's website.
     /// - Parameter defaultModel: Sets the default model for all requests coming from this `ChatGPT` instance.
-    public init(apiKey: String, defaultModel: ChatGPTModel = .gpt3) {
+    /// - Parameter urlSessionConfiguration: An optional URL session configuration object.
+    public init(
+        apiKey: String,
+        defaultModel: ChatGPTModel = .gpt3,
+        urlSessionConfiguration: URLSessionConfiguration? = nil
+    ) {
         self.apiClientRequestHandler = .init(apiKey: apiKey)
         self.defaultModel = defaultModel
+        // TODO: Timeout increase options and more config of URLSession from outside?
         self.client = APIClient(baseURL: URL(string: API.base)) { [apiClientRequestHandler] configuration in
             configuration.delegate = apiClientRequestHandler
+            if let urlSessionConfiguration {
+                configuration.sessionConfiguration = urlSessionConfiguration
+            }
         }
         self.streamedAnswer = .init(client: client, apiKey: apiKey, defaultModel: defaultModel)
     }
@@ -126,15 +135,8 @@ public class ChatGPT {
     private func send<Response: Codable>(request: Request<Response>) async throws -> Response {
         do {
             return try await client.send(request).value
-        } catch let error as APIError {
-            switch error {
-            case let .unacceptableStatusCode(int) where int == 401:
-                throw GPTSwiftError.unauthorized
-            default:
-                throw GPTSwiftError.requestFailed
-            }
         } catch {
-            throw GPTSwiftError.responseParsingFailed
+            throw _errorToGPTSwiftError(error)
         }
     }
 }
