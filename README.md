@@ -101,8 +101,8 @@ func askChatGPT() async throws {
     request.numberOfAnswers = 2
   }
 
-  let thirdResponse = try await chatGPT.ask(request: fullRequest)
-  print(thirdResponse.choices.map(\.message))
+  let response = try await chatGPT.ask(request: fullRequest)
+  print(response.choices.map(\.message))
 }
 ```
 
@@ -139,12 +139,11 @@ import GPT
 func askGPT() async throws {
   let gpt = GPT(apiKey: "YOUR_API_KEY", defaultModel: .davinci)
 
-  let firstResponse = try await gpt.complete("What is the answer to life, the universe and everything in it?")
-  print(firstResponse)
+  let response = try await gpt.complete("What is the answer to life, the universe and everything in it?")
+  print(response)
 }                                                                                                      
 ```
                                                                             
-
 ```swift
 import GPT
 
@@ -156,8 +155,8 @@ func askGPT() async throws {
       request.numberOfAnswers = 2
   }
 
-  let thirdResponse = try await gpt.complete(request: fullRequest)
-  print(thirdResponse.choices.map(\.text))
+  let response = try await gpt.complete(request: fullRequest)
+  print(response.choices.map(\.text))
 }                                                                                                      
 ```
                                                                             
@@ -193,9 +192,6 @@ func openAI() async throws {
   let model = try await openAI.model(withId: "gpt-3.5-turbo")
 }
 ```
-
-                                                                                                      
-
 
 ## Generating cURL Prompts
 
