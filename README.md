@@ -13,10 +13,12 @@ GPTSwift is a lightweight and convenient wrapper around the OpenAI API. It is co
 Using GPTSwift is easy:
 
 ```swift
+import ChatGPT
+
 let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
 let answer = try await chatGPT.ask("What is the answer to life, the universe and everything in it?")
 
-// Stream the answers
+// Stream the answer token by token
 var streamedAnswer = ""
 for try await nextWord in try await chatGPT.streamedAnswer.ask("Tell me a story about birds") {
     streamedAnswer += nextWord
@@ -72,7 +74,7 @@ func askChatGPT() async throws {
             ChatMessage(role: .user, content: "Do you actually like playing fetch?")
         ]
     )
-    print(secondResponse.choices.map(\.message))
+    print(secondResponse)
 
     // Full control
     var fullRequest = ChatRequest(
