@@ -33,6 +33,7 @@ An example project can be found here: [GPTPlayground](https://github.com/Swifted
   - [Requirements](#requirements)
   - [Installation](#installation)
 - [**How to Use**](#how-to-use)
+- [Generating cURL Prompts](#generating-curl-prompts)
 - [License](#license)
 
 ## Getting Started
@@ -91,14 +92,13 @@ import ChatGPT
 func askChatGPT() async throws {
   let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY", defaultModel: .gpt3)
 
-  // Full control
   let fullRequest = ChatRequest.gpt3 { request in
-      request.messages = [
-          .init(role: .system, content: "You are the pilot of an alien UFO. Be creative."),
-          .init(role: .user, content: "Where do you come from?")
-      ]
-      request.temperature = 0.8
-      request.numberOfAnswers = 2
+    request.messages = [
+        .init(role: .system, content: "You are the pilot of an alien UFO. Be creative."),
+        .init(role: .user, content: "Where do you come from?")
+    ]
+    request.temperature = 0.8
+    request.numberOfAnswers = 2
   }
 
   let thirdResponse = try await chatGPT.ask(request: fullRequest)
@@ -115,13 +115,12 @@ import ChatGPT
 @Published var gptAnswer = ""
 
 func askChatGPT() async throws {
-    let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
+  let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY")
 
-    // Basic query
-    gptAnswer = ""
-    for try await nextWord in try await chatGPT.streamedAnswer.ask("Tell me a funny story about birds") {
-        gptAnswer += nextWord
-    }
+  gptAnswer = ""
+  for try await nextWord in try await chatGPT.streamedAnswer.ask("Tell me a funny story about birds") {
+      gptAnswer += nextWord
+  }
 }
 ```
 
@@ -131,9 +130,107 @@ For more information about the ChatGPT API, you can look at OpenAI's documentati
 
 
 ### GPT
+                                                                                                      
+Like `ChatGPT`, `GPT` is a wrapper around the completion API. There is a basic `complete(_:)` method for convenient use, as well as a `complete(request:)` method that gives you full control.
 
+```swift
+import GPT
+
+func askGPT() async throws {
+  let gpt = GPT(apiKey: "YOUR_API_KEY", defaultModel: .davinci)
+
+  let firstResponse = try await gpt.complete("What is the answer to life, the universe and everything in it?")
+  print(firstResponse)
+}                                                                                                      
+```
+                                                                            
+
+```swift
+import GPT
+
+func askGPT() async throws {
+  let gpt = GPT(apiKey: "YOUR_API_KEY", defaultModel: .davinci)
+
+  let fullRequest = CompletionRequest.davinci(prompt: "Why is the sky blue?") { request in
+      request.temperature = 0.8
+      request.numberOfAnswers = 2
+  }
+
+  let thirdResponse = try await gpt.complete(request: fullRequest)
+  print(thirdResponse.choices.map(\.text))
+}                                                                                                      
+```
+                                                                            
+Additionally, just like `ChatGPT`, `GPT` also supports streaming answers:
+                                                                            
+```swift
+import GPT
+
+// In your view model
+@Published var gptAnswer = ""
+
+func askGPT() async throws {
+  let gpt = GPT(apiKey: "YOUR_API_KEY")
+
+  gptAnswer = ""
+  for try await nextWord in try await gpt.streamedAnswer.complete("Tell me a funny story about birds") {
+      gptAnswer += nextWord
+  }
+}
+```
+
+### OpenAI
+
+Finally, you can access the available models throught the `OpenAI` class.
+
+```swift
+import OpenAI
+
+func openAI() async throws {
+  let openAI = OpenAI(apiKey: "YOUR_API_KEY")
+
+  let models = try await openAI.availableModels()
+  let model = try await openAI.model(withId: "gpt-3.5-turbo")
+}
+```
 
                                                                                                       
+
+
+## Generating cURL Prompts
+
+Sometimes, it might be useful to see the generated requests, so all three classes introduced above come with methods that generate a usable `cURL` prompt from a request that you can simply paste into a terminal. For example:
+
+```swift
+import ChatGPT
+
+func askChatGPT() async throws {
+  let chatGPT = ChatGPT(apiKey: "YOUR_API_KEY", defaultModel: .gpt3)
+
+  let request = ChatRequest.gpt3 { request in
+      request.messages = [
+          .init(role: .system, content: "You are the pilot of an alien UFO. Be creative."),
+          .init(role: .user, content: "Where do you come from?")
+      ]
+      request.numberOfAnswers = 2
+  }
+
+  try await print(chatGPT.curl(for: request))
+}
+```
+
+This generates the following:
+
+```
+curl --request POST \
+--url 'https://api.openai.com/v1/chat/completions' \
+--header 'Accept: application/json' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_API_KEY' \
+--data '{"messages":[{"content":"You are the pilot of an alien UFO. Be creative.","role":"system"},{"content":"Where do you come from?","role":"user"}],"model":"gpt-3.5-turbo","n":2,"stream":false}' | json_pp
+
+```
+
 ## License
 
 MIT License
