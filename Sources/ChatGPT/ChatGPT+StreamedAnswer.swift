@@ -86,6 +86,10 @@ extension ChatGPT {
         /// - Throws: A `GPTSwiftError`.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func ask(request chatRequest: ChatRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
+
+            var chatRequest = chatRequest
+            chatRequest.stream = true
+
             let request = Request(path: API.v1ChatCompletion, method: .post, body: chatRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
             _addHeaders(to: &urlRequest, apiKey: apiKey)

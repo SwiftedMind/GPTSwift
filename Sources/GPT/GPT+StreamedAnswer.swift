@@ -69,6 +69,10 @@ extension GPT {
         /// - Throws: A `Swift.Error` if the request fails or the server returns an unauthorized status code.
         @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
         public func complete(request completionRequest: CompletionRequest) async throws -> AsyncThrowingStream<String, Swift.Error> {
+
+            var completionRequest = completionRequest
+            completionRequest.stream = true
+
             let request = Request(path: API.v1Completion, method: .post, body: completionRequest)
             var urlRequest = try await client.makeURLRequest(for: request)
             _addHeaders(to: &urlRequest, apiKey: apiKey)
