@@ -1,6 +1,4 @@
-<p align="center">
-  <img width="200" height="200" src="https://user-images.githubusercontent.com/7083109/231765874-eeb1bb37-d945-4770-8570-d1014c0c857d.png">
-</p>
+<img width="100" height="100" src="https://user-images.githubusercontent.com/7083109/231765874-eeb1bb37-d945-4770-8570-d1014c0c857d.png">
 
 # GPTSwift
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FSwiftedMind%2FGPTSwift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/SwiftedMind/GPTSwift)
